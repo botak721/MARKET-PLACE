@@ -1,3 +1,4 @@
+import Header from "@/components/Header";
 import ProductCard from "@/components/ProductCard";
 
 const produk = [
@@ -5,24 +6,16 @@ const produk = [
   { id: 2, nama: "Kopi Gayo 250 gram", toko: "Kopi Pagi", harga: 72000 },
   { id: 3, nama: "Tote Bag Kanvas", toko: "Kanvas Lokal", harga: 89000 },
   { id: 4, nama: "Lilin Aromaterapi", toko: "Nyala Studio", harga: 65000 },
+  { id: 5, nama: "Mug Keramik Handmade", toko: "Tanah Liat Co", harga: 95000 },
+  { id: 6, nama: "Madu Hutan 500 ml", toko: "Madu Rimba", harga: 120000 },
+  { id: 7, nama: "Sabun Herbal Batang", toko: "Racik Alami", harga: 28000 },
+  { id: 8, nama: "Dompet Kulit Sapi", toko: "Samak Jaya", harga: 210000 },
 ];
 
 export default function Home() {
   return (
     <>
-      <header className="mx-auto flex max-w-[1200px] items-center gap-6 px-[5vw] py-5">
-        <a
-          href="#"
-          className="font-judul text-2xl font-bold whitespace-nowrap text-hijau"
-        >
-          Rizki Online Shop
-        </a>
-        <input
-          type="search"
-          placeholder="Cari barang yang lu mau"
-          className="flex-1 rounded-full border-2 border-hijau bg-transparent px-5 py-3"
-        />
-      </header>
+      <Header />
 
       <main className="mx-auto max-w-[1200px]">
         <section className="px-[5vw] pt-12 pb-6">
