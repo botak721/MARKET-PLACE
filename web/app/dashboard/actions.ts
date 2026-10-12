@@ -12,19 +12,22 @@ function buatSlug(nama: string) {
     .replace(/^-+|-+$/g, "");
 }
 
+async function ambilSession() {
+  return auth.api.getSession({ headers: await headers() });
+}
+
 export async function ambilTokoSaya() {
-  const session = await auth.api.getSession({ headers: await headers() });
+  const session = await ambilSession();
   if (!session?.user) return null;
 
-  const toko = await prisma.store.findUnique({
+  return prisma.store.findUnique({
     where: { ownerId: session.user.id },
     select: { id: true, nama: true, slug: true },
   });
-  return toko;
 }
 
 export async function bukaToko(formData: FormData) {
-  const session = await auth.api.getSession({ headers: await headers() });
+  const session = await ambilSession();
   if (!session?.user) return { error: "Silakan masuk dulu." };
 
   const nama = String(formData.get("nama") ?? "").trim();
@@ -45,4 +48,42 @@ export async function bukaToko(formData: FormData) {
     data: { nama, slug, ownerId: session.user.id },
   });
   return { error: null };
+}
+
+export async function ambilProdukSaya() {
+  const toko = await ambilTokoSaya();
+  if (!toko) return [];
+
+  return prisma.product.findMany({
+    where: { storeId: toko.id },
+    orderBy: { id: "desc" },
+    select: { id: true, nama: true, harga: true },
+  });
+}
+
+export async function tambahProduk(formData: FormData) {
+  const toko = await ambilTokoSaya();
+  if (!toko) return { error: "Buka toko dulu sebelum menambah produk." };
+
+  const nama = String(formData.get("nama") ?? "").trim();
+  if (nama.length < 2) return { error: "Nama produk minimal 2 karakter." };
+
+  const harga = Number(formData.get("harga"));
+  if (!Number.isInteger(harga) || harga < 100) {
+    return { error: "Harga harus angka bulat, minimal 100." };
+  }
+
+  await prisma.product.create({
+    data: { nama, harga, storeId: toko.id },
+  });
+  return { error: null };
+}
+
+export async function hapusProduk(id: number) {
+  const toko = await ambilTokoSaya();
+  if (!toko) return;
+
+  await prisma.product.deleteMany({
+    where: { id, storeId: toko.id },
+  });
 }

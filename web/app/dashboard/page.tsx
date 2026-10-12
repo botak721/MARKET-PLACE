@@ -2,15 +2,29 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { useSession, signOut } from "@/lib/auth-client";
-import { ambilTokoSaya, bukaToko } from "./actions";
+import {
+  ambilTokoSaya,
+  bukaToko,
+  ambilProdukSaya,
+  tambahProduk,
+  hapusProduk,
+} from "./actions";
 
 type Toko = { id: number; nama: string; slug: string } | null;
+type Produk = { id: number; nama: string; harga: number };
+
+const kolom =
+  "w-full rounded-full border-2 border-hijau bg-transparent px-5 py-3";
+const tombol =
+  "w-full rounded-full bg-hijau px-5 py-3 font-semibold text-krem";
 
 export default function DashboardPage() {
   const router = useRouter();
   const { data: session, isPending } = useSession();
   const [toko, setToko] = useState<Toko | undefined>(undefined);
+  const [produk, setProduk] = useState<Produk[]>([]);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -21,7 +35,10 @@ export default function DashboardPage() {
 
   const userId = session?.user?.id;
   useEffect(() => {
-    if (userId) ambilTokoSaya().then(setToko);
+    if (userId) {
+      ambilTokoSaya().then(setToko);
+      ambilProdukSaya().then(setProduk);
+    }
   }, [userId]);
 
   async function handleBukaToko(e: React.FormEvent<HTMLFormElement>) {
@@ -35,13 +52,31 @@ export default function DashboardPage() {
     }
   }
 
+  async function handleTambah(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setError(null);
+    const form = e.currentTarget;
+    const hasil = await tambahProduk(new FormData(form));
+    if (hasil.error) {
+      setError(hasil.error);
+    } else {
+      form.reset();
+      setProduk(await ambilProdukSaya());
+    }
+  }
+
+  async function handleHapus(id: number) {
+    await hapusProduk(id);
+    setProduk(await ambilProdukSaya());
+  }
+
   if (isPending) return <p className="mt-8 text-center">Memuat...</p>;
   if (!session?.user) return <p className="mt-8 text-center">Mengalihkan...</p>;
 
   const { user } = session;
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-md flex-col justify-center gap-4 px-6">
+    <main className="mx-auto flex min-h-screen max-w-md flex-col gap-4 px-6 py-10">
       <h1 className="font-judul text-3xl font-bold text-hijau">Dashboard</h1>
       <p>Halo, {user.name}!</p>
 
@@ -56,26 +91,81 @@ export default function DashboardPage() {
             placeholder="Nama toko"
             required
             minLength={3}
-            className="w-full rounded-full border-2 border-hijau bg-transparent px-5 py-3"
+            className={kolom}
           />
-          <button
-            type="submit"
-            className="w-full rounded-full bg-hijau px-5 py-3 font-semibold text-krem"
-          >
+          <button type="submit" className={tombol}>
             Buka toko
           </button>
         </form>
       )}
 
       {toko && (
-        <div className="rounded-3xl bg-kartu p-5">
-          <p className="text-sm opacity-70">Toko kamu</p>
-          <p className="font-judul text-xl font-bold text-hijau">{toko.nama}</p>
-        </div>
+        <>
+          <div className="rounded-3xl bg-kartu p-5">
+            <p className="text-sm opacity-70">Toko kamu</p>
+            <p className="font-judul text-xl font-bold text-hijau">{toko.nama}</p>
+            <Link
+              href={`/toko/${toko.slug}`}
+              className="mt-2 inline-block text-sm font-semibold text-hijau underline"
+            >
+              Lihat etalase
+            </Link>
+          </div>
+
+          <form onSubmit={handleTambah} className="space-y-3">
+            <p className="font-semibold">Tambah produk</p>
+            {error && <p className="text-red-600">{error}</p>}
+            <input
+              name="nama"
+              placeholder="Nama produk"
+              required
+              className={kolom}
+            />
+            <input
+              name="harga"
+              type="number"
+              placeholder="Harga (rupiah)"
+              required
+              min={100}
+              className={kolom}
+            />
+            <button type="submit" className={tombol}>
+              Tambah produk
+            </button>
+          </form>
+
+          <div className="space-y-2">
+            <p className="font-semibold">Produk di tokomu ({produk.length})</p>
+            {produk.length === 0 && (
+              <p className="text-sm opacity-70">Belum ada produk.</p>
+            )}
+            {produk.map((p) => (
+              <div
+                key={p.id}
+                className="flex items-center justify-between gap-3 rounded-2xl bg-kartu px-4 py-3"
+              >
+                <div>
+                  <p className="font-semibold">{p.nama}</p>
+                  <p className="text-sm text-hijau">
+                    Rp{p.harga.toLocaleString("id-ID")}
+                  </p>
+                </div>
+                <button
+                  onClick={() => handleHapus(p.id)}
+                  className="text-sm font-semibold text-red-600"
+                >
+                  Hapus
+                </button>
+              </div>
+            ))}
+          </div>
+        </>
       )}
 
       <button
-        onClick={() => signOut({ fetchOptions: { onSuccess: () => router.push("/") } })}
+        onClick={() =>
+          signOut({ fetchOptions: { onSuccess: () => router.push("/") } })
+        }
         className="w-full rounded-full border-2 border-hijau px-5 py-3 font-semibold text-hijau"
       >
         Keluar
