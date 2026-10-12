@@ -11,6 +11,8 @@ model Store {
   id        Int       @id @default(autoincrement())
   nama      String
   slug      String    @unique
+  ownerId   String?   @unique
+  owner     User?     @relation(fields: [ownerId], references: [id])
   createdAt DateTime  @default(now())
   products  Product[]
 }
@@ -34,6 +36,7 @@ model User {
   updatedAt     DateTime
   sessions      Session[]
   accounts      Account[]
+  store         Store?
 
   @@unique([email])
   @@map("user")
