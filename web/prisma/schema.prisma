@@ -18,16 +18,17 @@ model Store {
 }
 
 model Product {
-  id        Int      @id @default(autoincrement())
+  id        Int        @id @default(autoincrement())
   nama      String
   harga     Int
   storeId   Int
-  store     Store    @relation(fields: [storeId], references: [id])
-  createdAt DateTime @default(now())
+  store     Store      @relation(fields: [storeId], references: [id])
+  createdAt DateTime   @default(now())
+  cartItems CartItem[]
 }
 
 model User {
-  id            String    @id
+  id            String     @id
   name          String
   email         String
   emailVerified Boolean
@@ -37,6 +38,7 @@ model User {
   sessions      Session[]
   accounts      Account[]
   store         Store?
+  cartItems     CartItem[]
 
   @@unique([email])
   @@map("user")
@@ -85,4 +87,16 @@ model Verification {
   updatedAt  DateTime?
 
   @@map("verification")
+}
+
+model CartItem {
+  id        Int      @id @default(autoincrement())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  productId Int
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  jumlah    Int      @default(1)
+  createdAt DateTime @default(now())
+
+  @@unique([userId, productId])
 }

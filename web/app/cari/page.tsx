@@ -47,6 +47,7 @@ async function Hasil({
           {produk.map((p) => (
             <ProductCard
               key={p.id}
+              id={p.id}
               nama={p.nama}
               toko={p.store.nama}
               slug={p.store.slug}

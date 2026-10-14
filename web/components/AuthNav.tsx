@@ -8,9 +8,12 @@ export default function AuthNav() {
 
   if (isPending) return <div className="h-10 w-32" />;
 
-  if (session?.user) {
+    if (session?.user) {
     return (
       <nav className="flex items-center gap-3 whitespace-nowrap">
+        <Link href="/keranjang" className="font-semibold text-hijau">
+          Keranjang
+        </Link>
         <Link
           href="/dashboard"
           className="rounded-full bg-hijau px-4 py-2 font-semibold text-krem"

@@ -28,6 +28,7 @@ async function Etalase({ params }: { params: Promise<{ slug: string }> }) {
         {toko.products.map((p) => (
           <ProductCard
             key={p.id}
+            id={p.id}
             nama={p.nama}
             toko={toko.nama}
             slug={toko.slug}
