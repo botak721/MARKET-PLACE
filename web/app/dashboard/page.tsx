@@ -101,7 +101,7 @@ export default function DashboardPage() {
 
       {toko && (
         <>
-          <div className="rounded-3xl bg-kartu p-5">
+                    <div className="rounded-3xl bg-kartu p-5">
             <p className="text-sm opacity-70">Toko kamu</p>
             <p className="font-judul text-xl font-bold text-hijau">{toko.nama}</p>
             <Link
@@ -109,6 +109,12 @@ export default function DashboardPage() {
               className="mt-2 inline-block text-sm font-semibold text-hijau underline"
             >
               Lihat etalase
+            </Link>
+            <Link
+              href="/dashboard/pesanan"
+              className="mt-2 ml-4 inline-block text-sm font-semibold text-hijau underline"
+            >
+              Pesanan masuk
             </Link>
           </div>
 

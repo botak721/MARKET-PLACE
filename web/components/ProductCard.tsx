@@ -1,6 +1,8 @@
 import Link from "next/link";
+import TambahKeranjang from "@/components/TambahKeranjang";
 
 type Props = {
+  id?: number;
   nama: string;
   toko: string;
   harga: number;
@@ -10,7 +12,7 @@ type Props = {
 const pil =
   "mt-2 inline-block rounded-full bg-[#e3ecdf] px-2.5 py-0.5 text-sm text-hijau";
 
-export default function ProductCard({ nama, toko, harga, slug }: Props) {
+export default function ProductCard({ id, nama, toko, harga, slug }: Props) {
   return (
     <article className="rounded-3xl bg-kartu p-3.5 pb-5 transition-transform hover:-translate-y-1.5">
       <div className="mb-3.5 aspect-square rounded-2xl bg-[#d9cdb8]" />
@@ -25,6 +27,7 @@ export default function ProductCard({ nama, toko, harga, slug }: Props) {
       <p className="mt-2.5 font-semibold text-hijau">
         Rp{harga.toLocaleString("id-ID")}
       </p>
+      {id !== undefined && <TambahKeranjang productId={id} />}
     </article>
   );
 }

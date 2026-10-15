@@ -12,7 +12,7 @@ export default async function ProductList() {
   return (
     <section className="grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-6 px-[5vw] pt-6 pb-16">
       {produk.map((p) => (
-        <ProductCard key={p.id} nama={p.nama} toko={p.store.nama} slug={p.store.slug} harga={p.harga} />
+        <ProductCard key={p.id} id={p.id} nama={p.nama} toko={p.store.nama} slug={p.store.slug} harga={p.harga} />
       ))}
     </section>
   );
