@@ -15,6 +15,7 @@ model Store {
   owner     User?     @relation(fields: [ownerId], references: [id])
   createdAt DateTime  @default(now())
   products  Product[]
+  orders    Order[]
 }
 
 model Product {
@@ -39,6 +40,7 @@ model User {
   accounts      Account[]
   store         Store?
   cartItems     CartItem[]
+  orders        Order[]
 
   @@unique([email])
   @@map("user")
@@ -99,4 +101,26 @@ model CartItem {
   createdAt DateTime @default(now())
 
   @@unique([userId, productId])
+}
+
+model Order {
+  id        Int         @id @default(autoincrement())
+  buyerId   String
+  buyer     User        @relation(fields: [buyerId], references: [id], onDelete: Cascade)
+  storeId   Int
+  store     Store       @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  status    String      @default("MENUNGGU")
+  total     Int
+  alamat    String
+  createdAt DateTime    @default(now())
+  items     OrderItem[]
+}
+
+model OrderItem {
+  id      Int    @id @default(autoincrement())
+  orderId Int
+  order   Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  nama    String
+  harga   Int
+  jumlah  Int
 }

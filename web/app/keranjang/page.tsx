@@ -103,12 +103,12 @@ export default function KeranjangPage() {
       {item.length > 0 && (
         <div className="mt-6 flex items-center justify-between rounded-3xl bg-kartu p-5">
           <p className="font-semibold">Total: {rupiah(total)}</p>
-          <button
-            disabled
-            className="rounded-full bg-hijau px-5 py-3 font-semibold text-krem opacity-50"
+          <Link
+            href="/checkout"
+            className="rounded-full bg-hijau px-5 py-3 font-semibold text-krem"
           >
-            Checkout (segera)
-          </button>
+            Checkout
+          </Link>
         </div>
       )}
     </main>
