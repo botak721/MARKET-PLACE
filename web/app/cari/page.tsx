@@ -53,6 +53,7 @@ async function Hasil({
               slug={p.store.slug}
               harga={p.harga}
               gambar={p.gambar}
+              stok={p.stok}
             />
           ))}
         </section>

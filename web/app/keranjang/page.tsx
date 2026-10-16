@@ -45,26 +45,47 @@ export default function KeranjangPage() {
     }, {}),
   );
   const total = item.reduce((s, i) => s + i.harga * i.jumlah, 0);
+  const bermasalah = item.some((i) => i.stok <= 0 || i.jumlah > i.stok);
 
   return (
     <main className="mx-auto max-w-2xl px-6 py-10">
       <Link href="/" className="text-sm font-semibold text-hijau underline">
         Kembali belanja
       </Link>
-      <h1 className="font-judul mt-3 text-3xl font-bold text-hijau">Keranjang</h1>
+      <h1 className="font-judul mt-3 text-3xl font-bold text-hijau">
+        Keranjang
+      </h1>
 
       {item.length === 0 && <p className="mt-6">Keranjangmu masih kosong.</p>}
 
       <div className="mt-6 space-y-6">
         {perToko.map((grup) => (
           <section key={grup.toko} className="rounded-3xl bg-kartu p-5">
-            <h2 className="font-judul text-lg font-bold text-hijau">{grup.toko}</h2>
+            <h2 className="font-judul text-lg font-bold text-hijau">
+              {grup.toko}
+            </h2>
             <div className="mt-3 space-y-4">
               {grup.barang.map((b) => (
-                <div key={b.productId} className="flex items-center justify-between gap-3">
+                <div
+                  key={b.productId}
+                  className="flex items-center justify-between gap-3"
+                >
                   <div>
                     <p className="font-semibold">{b.nama}</p>
                     <p className="text-sm text-hijau">{rupiah(b.harga)}</p>
+                    {b.stok <= 0 ? (
+                      <p className="text-xs text-red-600">
+                        Stok habis, hapus barang ini untuk lanjut checkout.
+                      </p>
+                    ) : b.jumlah > b.stok ? (
+                      <p className="text-xs text-red-600">
+                        Stok tersisa {b.stok}, kurangi jumlahnya.
+                      </p>
+                    ) : b.stok <= 5 ? (
+                      <p className="text-xs opacity-70">
+                        Stok tersisa {b.stok}
+                      </p>
+                    ) : null}
                   </div>
                   <div className="flex items-center gap-2">
                     <button
@@ -76,7 +97,8 @@ export default function KeranjangPage() {
                     <span className="w-6 text-center">{b.jumlah}</span>
                     <button
                       onClick={() => ubah(b.productId, b.jumlah + 1)}
-                      className="h-8 w-8 rounded-full border-2 border-hijau font-semibold text-hijau"
+                      disabled={b.jumlah >= b.stok}
+                      className="h-8 w-8 rounded-full border-2 border-hijau font-semibold text-hijau disabled:opacity-30"
                     >
                       +
                     </button>
@@ -93,7 +115,9 @@ export default function KeranjangPage() {
             <p className="mt-4 text-right text-sm">
               Subtotal toko:{" "}
               <span className="font-semibold">
-                {rupiah(grup.barang.reduce((s, b) => s + b.harga * b.jumlah, 0))}
+                {rupiah(
+                  grup.barang.reduce((s, b) => s + b.harga * b.jumlah, 0),
+                )}
               </span>
             </p>
           </section>
@@ -101,14 +125,28 @@ export default function KeranjangPage() {
       </div>
 
       {item.length > 0 && (
-        <div className="mt-6 flex items-center justify-between rounded-3xl bg-kartu p-5">
-          <p className="font-semibold">Total: {rupiah(total)}</p>
-          <Link
-            href="/checkout"
-            className="rounded-full bg-hijau px-5 py-3 font-semibold text-krem"
-          >
-            Checkout
-          </Link>
+        <div className="mt-6 rounded-3xl bg-kartu p-5">
+          <div className="flex items-center justify-between">
+            <p className="font-semibold">Total: {rupiah(total)}</p>
+            {bermasalah ? (
+              <span className="rounded-full bg-hijau px-5 py-3 font-semibold text-krem opacity-40">
+                Checkout
+              </span>
+            ) : (
+              <Link
+                href="/checkout"
+                className="rounded-full bg-hijau px-5 py-3 font-semibold text-krem"
+              >
+                Checkout
+              </Link>
+            )}
+          </div>
+          {bermasalah && (
+            <p className="mt-2 text-sm text-red-600">
+              Ada barang yang stoknya tidak cukup. Perbaiki dulu sebelum
+              checkout.
+            </p>
+          )}
         </div>
       )}
     </main>

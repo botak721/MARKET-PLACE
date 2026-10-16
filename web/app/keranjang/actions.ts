@@ -22,6 +22,18 @@ export async function tambahKeKeranjang(productId: number) {
     return { error: "Kamu tidak bisa membeli produk tokomu sendiri." };
   }
 
+  if (produk.stok <= 0) return { error: "Stok produk ini habis." };
+
+  const sudahAda = await prisma.cartItem.findUnique({
+    where: { userId_productId: { userId: uid, productId } },
+    select: { jumlah: true },
+  });
+  if ((sudahAda?.jumlah ?? 0) + 1 > produk.stok) {
+    return {
+      error: `Stok tersisa ${produk.stok}, semuanya sudah ada di keranjangmu.`,
+    };
+  }
+
   await prisma.cartItem.upsert({
     where: { userId_productId: { userId: uid, productId } },
     create: { userId: uid, productId, jumlah: 1 },
@@ -47,6 +59,7 @@ export async function ambilKeranjang() {
     jumlah: i.jumlah,
     nama: i.product.nama,
     harga: i.product.harga,
+    stok: i.product.stok,
     tokoId: i.product.store.id,
     toko: i.product.store.nama,
   }));
@@ -58,12 +71,19 @@ export async function ubahJumlah(productId: number, jumlahBaru: number) {
 
   if (jumlahBaru <= 0) {
     await prisma.cartItem.deleteMany({ where: { userId: uid, productId } });
-  } else {
-    await prisma.cartItem.updateMany({
-      where: { userId: uid, productId },
-      data: { jumlah: Math.min(jumlahBaru, 99) },
-    });
+    return;
   }
+
+  const produk = await prisma.product.findUnique({
+    where: { id: productId },
+    select: { stok: true },
+  });
+  if (!produk || produk.stok <= 0) return;
+
+  await prisma.cartItem.updateMany({
+    where: { userId: uid, productId },
+    data: { jumlah: Math.min(jumlahBaru, 99, produk.stok) },
+  });
 }
 
 export async function hapusDariKeranjang(productId: number) {

@@ -10,6 +10,7 @@ import {
   ambilProdukSaya,
   tambahProduk,
   hapusProduk,
+  ubahStok,
 } from "./actions";
 import { upload } from "@vercel/blob/client";
 
@@ -19,6 +20,7 @@ type Produk = {
   nama: string;
   harga: number;
   gambar: string | null;
+  stok: number;
 };
 
 const kolom =
@@ -94,6 +96,18 @@ export default function DashboardPage() {
     setProduk(await ambilProdukSaya());
   }
 
+  async function handleUbahStok(p: Produk) {
+    setError(null);
+    const masuk = window.prompt(`Stok baru untuk ${p.nama}:`, String(p.stok));
+    if (masuk === null || masuk.trim() === "") return;
+    const hasil = await ubahStok(p.id, Number(masuk));
+    if (hasil.error) {
+      setError(hasil.error);
+    } else {
+      setProduk(await ambilProdukSaya());
+    }
+  }
+
   if (isPending) return <p className="mt-8 text-center">Memuat...</p>;
   if (!session?.user) return <p className="mt-8 text-center">Mengalihkan...</p>;
 
@@ -162,6 +176,15 @@ export default function DashboardPage() {
               className={kolom}
             />
             <input
+              name="stok"
+              type="number"
+              placeholder="Stok"
+              required
+              min={0}
+              defaultValue={1}
+              className={kolom}
+            />
+            <input
               name="gambar"
               type="file"
               accept="image/png,image/jpeg,image/webp"
@@ -195,14 +218,25 @@ export default function DashboardPage() {
                     <p className="text-sm text-hijau">
                       Rp{p.harga.toLocaleString("id-ID")}
                     </p>
+                    <p className="text-sm opacity-70">
+                      {p.stok === 0 ? "Stok habis" : `Stok: ${p.stok}`}
+                    </p>
                   </div>
                 </div>
-                <button
-                  onClick={() => handleHapus(p.id)}
-                  className="text-sm font-semibold text-red-600"
-                >
-                  Hapus
-                </button>
+                <div className="flex flex-col items-end gap-1">
+                  <button
+                    onClick={() => handleUbahStok(p)}
+                    className="text-sm font-semibold text-hijau"
+                  >
+                    Ubah stok
+                  </button>
+                  <button
+                    onClick={() => handleHapus(p.id)}
+                    className="text-sm font-semibold text-red-600"
+                  >
+                    Hapus
+                  </button>
+                </div>
               </div>
             ))}
           </div>

@@ -37,6 +37,7 @@ async function Etalase({ params }: { params: Promise<{ slug: string }> }) {
             slug={toko.slug}
             harga={p.harga}
             gambar={p.gambar}
+            stok={p.stok}
             rata={rating.get(p.id)?.rata}
             jumlahUlasan={rating.get(p.id)?.jumlah}
           />
