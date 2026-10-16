@@ -57,7 +57,7 @@ export async function ambilProdukSaya() {
   return prisma.product.findMany({
     where: { storeId: toko.id },
     orderBy: { id: "desc" },
-    select: { id: true, nama: true, harga: true },
+    select: { id: true, nama: true, harga: true, gambar: true },
   });
 }
 
@@ -68,13 +68,28 @@ export async function tambahProduk(formData: FormData) {
   const nama = String(formData.get("nama") ?? "").trim();
   if (nama.length < 2) return { error: "Nama produk minimal 2 karakter." };
 
-  const harga = Number(formData.get("harga"));
+    const harga = Number(formData.get("harga"));
   if (!Number.isInteger(harga) || harga < 100) {
     return { error: "Harga harus angka bulat, minimal 100." };
   }
 
+  let gambar: string | null = null;
+  const urlGambar = String(formData.get("gambar") ?? "").trim();
+  if (urlGambar) {
+    try {
+      const url = new URL(urlGambar);
+      const valid =
+        url.protocol === "https:" &&
+        url.hostname.endsWith(".public.blob.vercel-storage.com");
+      if (!valid) return { error: "Alamat gambar tidak valid." };
+      gambar = url.toString();
+    } catch {
+      return { error: "Alamat gambar tidak valid." };
+    }
+  }
+
   await prisma.product.create({
-    data: { nama, harga, storeId: toko.id },
+    data: { nama, harga, gambar, storeId: toko.id },
   });
   return { error: null };
 }

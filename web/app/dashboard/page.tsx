@@ -11,14 +11,19 @@ import {
   tambahProduk,
   hapusProduk,
 } from "./actions";
+import { upload } from "@vercel/blob/client";
 
 type Toko = { id: number; nama: string; slug: string } | null;
-type Produk = { id: number; nama: string; harga: number };
+type Produk = {
+  id: number;
+  nama: string;
+  harga: number;
+  gambar: string | null;
+};
 
 const kolom =
   "w-full rounded-full border-2 border-hijau bg-transparent px-5 py-3";
-const tombol =
-  "w-full rounded-full bg-hijau px-5 py-3 font-semibold text-krem";
+const tombol = "w-full rounded-full bg-hijau px-5 py-3 font-semibold text-krem";
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -26,6 +31,7 @@ export default function DashboardPage() {
   const [toko, setToko] = useState<Toko | undefined>(undefined);
   const [produk, setProduk] = useState<Produk[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [mengunggah, setMengunggah] = useState(false);
 
   useEffect(() => {
     if (!isPending && !session?.user) {
@@ -56,12 +62,30 @@ export default function DashboardPage() {
     e.preventDefault();
     setError(null);
     const form = e.currentTarget;
-    const hasil = await tambahProduk(new FormData(form));
-    if (hasil.error) {
-      setError(hasil.error);
-    } else {
-      form.reset();
-      setProduk(await ambilProdukSaya());
+    const data = new FormData(form);
+    setMengunggah(true);
+    try {
+      const file = data.get("gambar");
+      if (file instanceof File && file.size > 0) {
+        const blob = await upload(`produk/${file.name}`, file, {
+          access: "public",
+          handleUploadUrl: "/api/upload",
+        });
+        data.set("gambar", blob.url);
+      } else {
+        data.delete("gambar");
+      }
+      const hasil = await tambahProduk(data);
+      if (hasil.error) {
+        setError(hasil.error);
+      } else {
+        form.reset();
+        setProduk(await ambilProdukSaya());
+      }
+    } catch {
+      setError("Gagal mengunggah gambar. Coba lagi.");
+    } finally {
+      setMengunggah(false);
     }
   }
 
@@ -101,9 +125,11 @@ export default function DashboardPage() {
 
       {toko && (
         <>
-                    <div className="rounded-3xl bg-kartu p-5">
+          <div className="rounded-3xl bg-kartu p-5">
             <p className="text-sm opacity-70">Toko kamu</p>
-            <p className="font-judul text-xl font-bold text-hijau">{toko.nama}</p>
+            <p className="font-judul text-xl font-bold text-hijau">
+              {toko.nama}
+            </p>
             <Link
               href={`/toko/${toko.slug}`}
               className="mt-2 inline-block text-sm font-semibold text-hijau underline"
@@ -135,8 +161,14 @@ export default function DashboardPage() {
               min={100}
               className={kolom}
             />
-            <button type="submit" className={tombol}>
-              Tambah produk
+            <input
+              name="gambar"
+              type="file"
+              accept="image/png,image/jpeg,image/webp"
+              className="w-full text-sm"
+            />
+            <button type="submit" disabled={mengunggah} className={tombol}>
+              {mengunggah ? "Mengunggah..." : "Tambah produk"}
             </button>
           </form>
 
@@ -150,11 +182,20 @@ export default function DashboardPage() {
                 key={p.id}
                 className="flex items-center justify-between gap-3 rounded-2xl bg-kartu px-4 py-3"
               >
-                <div>
-                  <p className="font-semibold">{p.nama}</p>
-                  <p className="text-sm text-hijau">
-                    Rp{p.harga.toLocaleString("id-ID")}
-                  </p>
+                <div className="flex items-center gap-3">
+                  {p.gambar && (
+                    <img
+                      src={p.gambar}
+                      alt={p.nama}
+                      className="h-12 w-12 rounded-xl object-cover"
+                    />
+                  )}
+                  <div>
+                    <p className="font-semibold">{p.nama}</p>
+                    <p className="text-sm text-hijau">
+                      Rp{p.harga.toLocaleString("id-ID")}
+                    </p>
+                  </div>
                 </div>
                 <button
                   onClick={() => handleHapus(p.id)}

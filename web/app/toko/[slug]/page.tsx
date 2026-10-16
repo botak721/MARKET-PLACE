@@ -33,6 +33,7 @@ async function Etalase({ params }: { params: Promise<{ slug: string }> }) {
             toko={toko.nama}
             slug={toko.slug}
             harga={p.harga}
+            gambar={p.gambar}
           />
         ))}
       </section>
