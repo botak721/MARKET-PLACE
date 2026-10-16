@@ -52,6 +52,7 @@ async function Hasil({
               toko={p.store.nama}
               slug={p.store.slug}
               harga={p.harga}
+              gambar={p.gambar}
             />
           ))}
         </section>

@@ -4,7 +4,7 @@ import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
-const URUTAN = ["MENUNGGU", "DIPROSES", "DIKIRIM", "SELESAI"];
+const URUTAN = ["MENUNGGU", "DIPROSES", "DIKIRIM"];
 
 async function idPengguna() {
   const session = await auth.api.getSession({ headers: await headers() });
@@ -143,8 +143,28 @@ export async function majukanStatus(orderId: number) {
   const idx = URUTAN.indexOf(order.status);
   if (idx < 0 || idx >= URUTAN.length - 1) return;
 
-  await prisma.order.update({
-    where: { id: order.id },
+  await prisma.order.updateMany({
+    where: { id: order.id, status: order.status },
     data: { status: URUTAN[idx + 1] },
+  });
+}
+
+export async function terimaPesanan(orderId: number) {
+  const uid = await idPengguna();
+  if (!uid) return;
+
+  await prisma.order.updateMany({
+    where: { id: orderId, buyerId: uid, status: "DIKIRIM" },
+    data: { status: "SELESAI" },
+  });
+}
+
+export async function batalkanPesanan(orderId: number) {
+  const uid = await idPengguna();
+  if (!uid) return;
+
+  await prisma.order.updateMany({
+    where: { id: orderId, buyerId: uid, status: "MENUNGGU" },
+    data: { status: "DIBATALKAN" },
   });
 }
