@@ -73,8 +73,11 @@ async function Detail({ params }: { params: Promise<{ id: string }> }) {
             <span className="opacity-60">({rating.jumlah} ulasan)</span>
           </p>
         )}
+        <p className="mt-2 text-sm opacity-70">
+          {produk.stok === 0 ? "Stok habis" : `Stok tersisa: ${produk.stok}`}
+        </p>
         <div className="mt-5">
-          <TambahKeranjang productId={produk.id} />
+          <TambahKeranjang productId={produk.id} stok={produk.stok} />
         </div>
       </div>
 

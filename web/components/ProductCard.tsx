@@ -10,6 +10,7 @@ type Props = {
   gambar?: string | null;
   rata?: number;
   jumlahUlasan?: number;
+  stok?: number;
 };
 
 const pil =
@@ -24,6 +25,7 @@ export default function ProductCard({
   gambar,
   rata,
   jumlahUlasan,
+  stok,
 }: Props) {
   const foto = gambar ? (
     <img
@@ -72,7 +74,7 @@ export default function ProductCard({
           <span className="opacity-50">Belum ada ulasan</span>
         )}
       </p>
-      {id !== undefined && <TambahKeranjang productId={id} />}
+      {id !== undefined && <TambahKeranjang productId={id} stok={stok} />}
     </article>
   );
 }

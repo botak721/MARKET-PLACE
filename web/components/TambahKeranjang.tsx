@@ -4,7 +4,13 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { tambahKeKeranjang } from "@/app/keranjang/actions";
 
-export default function TambahKeranjang({ productId }: { productId: number }) {
+export default function TambahKeranjang({
+  productId,
+  stok,
+}: {
+  productId: number;
+  stok?: number;
+}) {
   const router = useRouter();
   const [pesan, setPesan] = useState<string | null>(null);
   const [proses, setProses] = useState(false);
@@ -21,6 +27,19 @@ export default function TambahKeranjang({ productId }: { productId: number }) {
     } else {
       setPesan("Masuk ke keranjang");
     }
+  }
+
+  if (stok === 0) {
+    return (
+      <div className="mt-3">
+        <button
+          disabled
+          className="w-full rounded-full border-2 border-hijau px-4 py-2 text-sm font-semibold text-hijau opacity-40"
+        >
+          Stok habis
+        </button>
+      </div>
+    );
   }
 
   return (

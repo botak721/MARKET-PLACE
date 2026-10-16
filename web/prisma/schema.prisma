@@ -23,6 +23,7 @@ model Product {
   nama      String
   harga     Int
   gambar    String?
+  stok      Int        @default(10)
   storeId   Int
   store     Store      @relation(fields: [storeId], references: [id])
   createdAt DateTime   @default(now())

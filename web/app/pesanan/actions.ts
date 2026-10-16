@@ -43,29 +43,43 @@ export async function buatPesanan(alamat: string) {
     perToko.set(k.product.store.id, daftar);
   }
 
-  const buatan = [...perToko.entries()].map(([storeId, daftar]) =>
-    prisma.order.create({
-      data: {
-        buyerId: uid,
-        storeId,
-        alamat: alamatBersih,
-        total: daftar.reduce((s, k) => s + k.product.harga * k.jumlah, 0),
-        items: {
-          create: daftar.map((k) => ({
-            nama: k.product.nama,
-            harga: k.product.harga,
-            jumlah: k.jumlah,
-            productId: k.productId,
-          })),
-        },
-      },
-    }),
-  );
+  try {
+    await prisma.$transaction(async (tx) => {
+      for (const k of keranjang) {
+        const hasil = await tx.product.updateMany({
+          where: { id: k.productId, stok: { gte: k.jumlah } },
+          data: { stok: { decrement: k.jumlah } },
+        });
+        if (hasil.count === 0) throw new Error(`STOK:${k.product.nama}`);
+      }
 
-  await prisma.$transaction([
-    ...buatan,
-    prisma.cartItem.deleteMany({ where: { userId: uid } }),
-  ]);
+      for (const [storeId, daftar] of perToko) {
+        await tx.order.create({
+          data: {
+            buyerId: uid,
+            storeId,
+            alamat: alamatBersih,
+            total: daftar.reduce((s, k) => s + k.product.harga * k.jumlah, 0),
+            items: {
+              create: daftar.map((k) => ({
+                productId: k.productId,
+                nama: k.product.nama,
+                harga: k.product.harga,
+                jumlah: k.jumlah,
+              })),
+            },
+          },
+        });
+      }
+
+      await tx.cartItem.deleteMany({ where: { userId: uid } });
+    });
+  } catch (e) {
+    if (e instanceof Error && e.message.startsWith("STOK:")) {
+      return { error: `Stok ${e.message.slice(5)} tidak cukup.` };
+    }
+    throw e;
+  }
   return { error: null };
 }
 
@@ -170,9 +184,24 @@ export async function batalkanPesanan(orderId: number) {
   const uid = await idPengguna();
   if (!uid) return;
 
-  await prisma.order.updateMany({
-    where: { id: orderId, buyerId: uid, status: "MENUNGGU" },
-    data: { status: "DIBATALKAN" },
+  await prisma.$transaction(async (tx) => {
+    const hasil = await tx.order.updateMany({
+      where: { id: orderId, buyerId: uid, status: "MENUNGGU" },
+      data: { status: "DIBATALKAN" },
+    });
+    if (hasil.count === 0) return;
+
+    const items = await tx.orderItem.findMany({
+      where: { orderId },
+      select: { productId: true, jumlah: true },
+    });
+    for (const i of items) {
+      if (i.productId === null) continue;
+      await tx.product.updateMany({
+        where: { id: i.productId },
+        data: { stok: { increment: i.jumlah } },
+      });
+    }
   });
 }
 

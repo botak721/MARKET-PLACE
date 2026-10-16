@@ -23,6 +23,7 @@ export default async function ProductList() {
           slug={p.store.slug}
           harga={p.harga}
           gambar={p.gambar}
+          stok={p.stok}
           rata={rating.get(p.id)?.rata}
           jumlahUlasan={rating.get(p.id)?.jumlah}
         />
