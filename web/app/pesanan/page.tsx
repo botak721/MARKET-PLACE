@@ -4,7 +4,8 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useSession } from "@/lib/auth-client";
-import { ambilPesananSaya } from "./actions";
+import { ambilPesananSaya, terimaPesanan, batalkanPesanan } from "./actions";
+import { infoStatus } from "@/lib/status";
 
 type Pesanan = Awaited<ReturnType<typeof ambilPesananSaya>>[number];
 
@@ -30,6 +31,17 @@ export default function PesananPage() {
     if (userId) ambilPesananSaya().then(setPesanan);
   }, [userId]);
 
+  async function terima(id: number) {
+    await terimaPesanan(id);
+    setPesanan(await ambilPesananSaya());
+  }
+
+  async function batal(id: number) {
+    if (!confirm("Batalkan pesanan ini?")) return;
+    await batalkanPesanan(id);
+    setPesanan(await ambilPesananSaya());
+  }
+
   if (isPending || pesanan === undefined) {
     return <p className="mt-8 text-center">Memuat pesanan...</p>;
   }
@@ -39,7 +51,9 @@ export default function PesananPage() {
       <Link href="/" className="text-sm font-semibold text-hijau underline">
         Kembali belanja
       </Link>
-      <h1 className="font-judul mt-3 text-3xl font-bold text-hijau">Pesananku</h1>
+      <h1 className="font-judul mt-3 text-3xl font-bold text-hijau">
+        Pesananku
+      </h1>
 
       {pesanan.length === 0 && <p className="mt-6">Belum ada pesanan.</p>}
 
@@ -47,7 +61,9 @@ export default function PesananPage() {
         {pesanan.map((o) => (
           <section key={o.id} className="rounded-3xl bg-kartu p-5">
             <div className="flex items-center justify-between gap-3">
-              <h2 className="font-judul text-lg font-bold text-hijau">{o.toko}</h2>
+              <h2 className="font-judul text-lg font-bold text-hijau">
+                {o.toko}
+              </h2>
               <span className="rounded-full bg-[#e3ecdf] px-2.5 py-0.5 text-sm text-hijau">
                 {o.status}
               </span>
@@ -65,8 +81,26 @@ export default function PesananPage() {
                 </li>
               ))}
             </ul>
-            <p className="mt-3 text-right font-semibold">Total: {rupiah(o.total)}</p>
+            <p className="mt-3 text-right font-semibold">
+              Total: {rupiah(o.total)}
+            </p>
             <p className="mt-2 text-sm opacity-70">Dikirim ke: {o.alamat}</p>
+            {o.status === "DIKIRIM" && (
+              <button
+                onClick={() => terima(o.id)}
+                className="mt-4 w-full rounded-full bg-hijau px-5 py-3 font-semibold text-krem"
+              >
+                Pesanan diterima
+              </button>
+            )}
+            {o.status === "MENUNGGU" && (
+              <button
+                onClick={() => batal(o.id)}
+                className="mt-4 w-full rounded-full border-2 border-hijau px-5 py-3 font-semibold text-hijau"
+              >
+                Batalkan pesanan
+              </button>
+            )}
           </section>
         ))}
       </div>

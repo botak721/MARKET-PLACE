@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useSession } from "@/lib/auth-client";
 import { ambilPesananToko, majukanStatus } from "@/app/pesanan/actions";
+import { infoStatus } from "@/lib/status";
 
 type Pesanan = Awaited<ReturnType<typeof ambilPesananToko>>[number];
 
@@ -19,7 +20,6 @@ const tanggal = (iso: string) =>
 const LABEL_TOMBOL: Record<string, string> = {
   MENUNGGU: "Proses pesanan",
   DIPROSES: "Tandai dikirim",
-  DIKIRIM: "Tandai selesai",
 };
 
 export default function PesananMasukPage() {
@@ -47,10 +47,15 @@ export default function PesananMasukPage() {
 
   return (
     <main className="mx-auto max-w-2xl px-6 py-10">
-      <Link href="/dashboard" className="text-sm font-semibold text-hijau underline">
+      <Link
+        href="/dashboard"
+        className="text-sm font-semibold text-hijau underline"
+      >
         Kembali ke dashboard
       </Link>
-      <h1 className="font-judul mt-3 text-3xl font-bold text-hijau">Pesanan masuk</h1>
+      <h1 className="font-judul mt-3 text-3xl font-bold text-hijau">
+        Pesanan masuk
+      </h1>
 
       {pesanan.length === 0 && <p className="mt-6">Belum ada pesanan masuk.</p>}
 
@@ -61,8 +66,10 @@ export default function PesananMasukPage() {
               <h2 className="font-semibold">
                 #{o.id} dari {o.pembeli}
               </h2>
-              <span className="rounded-full bg-[#e3ecdf] px-2.5 py-0.5 text-sm text-hijau">
-                {o.status}
+              <span
+                className={`rounded-full px-2.5 py-0.5 text-sm ${infoStatus(o.status).kelas}`}
+              >
+                {infoStatus(o.status).label}
               </span>
             </div>
             <p className="mt-1 text-sm opacity-70">{tanggal(o.tanggal)}</p>
@@ -76,7 +83,9 @@ export default function PesananMasukPage() {
                 </li>
               ))}
             </ul>
-            <p className="mt-3 text-right font-semibold">Total: {rupiah(o.total)}</p>
+            <p className="mt-3 text-right font-semibold">
+              Total: {rupiah(o.total)}
+            </p>
             <p className="mt-2 text-sm opacity-70">Kirim ke: {o.alamat}</p>
             {LABEL_TOMBOL[o.status] && (
               <button
@@ -85,6 +94,11 @@ export default function PesananMasukPage() {
               >
                 {LABEL_TOMBOL[o.status]}
               </button>
+            )}
+            {o.status === "DIKIRIM" && (
+              <p className="mt-4 text-center text-sm opacity-70">
+                Menunggu konfirmasi dari pembeli.
+              </p>
             )}
           </section>
         ))}
