@@ -25,19 +25,29 @@ export default function ProductCard({
   rata,
   jumlahUlasan,
 }: Props) {
+  const foto = gambar ? (
+    <img
+      src={gambar}
+      alt={nama}
+      loading="lazy"
+      className="mb-3.5 aspect-square w-full rounded-2xl object-cover"
+    />
+  ) : (
+    <div className="mb-3.5 aspect-square rounded-2xl bg-[#d9cdb8]" />
+  );
+
   return (
     <article className="rounded-3xl bg-kartu p-3.5 pb-5 transition-transform hover:-translate-y-1.5">
-      {gambar ? (
-        <img
-          src={gambar}
-          alt={nama}
-          loading="lazy"
-          className="mb-3.5 aspect-square w-full rounded-2xl object-cover"
-        />
-      ) : (
-        <div className="mb-3.5 aspect-square rounded-2xl bg-[#d9cdb8]" />
-      )}
-      <h2 className="text-base font-semibold">{nama}</h2>
+      {id !== undefined ? <Link href={`/produk/${id}`}>{foto}</Link> : foto}
+      <h2 className="text-base font-semibold">
+        {id !== undefined ? (
+          <Link href={`/produk/${id}`} className="hover:underline">
+            {nama}
+          </Link>
+        ) : (
+          nama
+        )}
+      </h2>
       {slug ? (
         <Link href={`/toko/${slug}`} className={pil}>
           {toko}
@@ -48,16 +58,20 @@ export default function ProductCard({
       <p className="mt-2.5 font-semibold text-hijau">
         Rp{harga.toLocaleString("id-ID")}
       </p>
-      {jumlahUlasan ? (
-        <p className="mt-1 text-sm">
-          <span className="text-[#d99a1e]">★</span>{" "}
-          {(rata ?? 0).toLocaleString("id-ID", {
-            minimumFractionDigits: 1,
-            maximumFractionDigits: 1,
-          })}{" "}
-          <span className="opacity-60">({jumlahUlasan})</span>
-        </p>
-      ) : null}
+      <p className="mt-1 text-sm">
+        {jumlahUlasan ? (
+          <>
+            <span className="text-[#d99a1e]">★</span>{" "}
+            {(rata ?? 0).toLocaleString("id-ID", {
+              minimumFractionDigits: 1,
+              maximumFractionDigits: 1,
+            })}{" "}
+            <span className="opacity-60">({jumlahUlasan})</span>
+          </>
+        ) : (
+          <span className="opacity-50">Belum ada ulasan</span>
+        )}
+      </p>
       {id !== undefined && <TambahKeranjang productId={id} />}
     </article>
   );
