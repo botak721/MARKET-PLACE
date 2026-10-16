@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useSession } from "@/lib/auth-client";
 import { ambilPesananSaya, terimaPesanan, batalkanPesanan } from "./actions";
 import { infoStatus } from "@/lib/status";
+import FormUlasan from "@/components/FormUlasan";
 
 type Pesanan = Awaited<ReturnType<typeof ambilPesananSaya>>[number];
 
@@ -42,6 +43,10 @@ export default function PesananPage() {
     setPesanan(await ambilPesananSaya());
   }
 
+  async function muatUlang() {
+    setPesanan(await ambilPesananSaya());
+  }
+
   if (isPending || pesanan === undefined) {
     return <p className="mt-8 text-center">Memuat pesanan...</p>;
   }
@@ -73,11 +78,20 @@ export default function PesananPage() {
             </p>
             <ul className="mt-3 space-y-1">
               {o.items.map((i) => (
-                <li key={i.id} className="flex justify-between gap-3 text-sm">
-                  <span>
-                    {i.nama} x{i.jumlah}
-                  </span>
-                  <span>{rupiah(i.harga * i.jumlah)}</span>
+                <li key={i.id} className="text-sm">
+                  <div className="flex justify-between gap-3">
+                    <span>
+                      {i.nama} x{i.jumlah}
+                    </span>
+                    <span>{rupiah(i.harga * i.jumlah)}</span>
+                  </div>
+                  {o.status === "SELESAI" &&
+                    i.productId !== null &&
+                    (i.sudahDiulas ? (
+                      <p className="mt-1 opacity-70">Sudah diulas</p>
+                    ) : (
+                      <FormUlasan orderItemId={i.id} onSelesai={muatUlang} />
+                    ))}
                 </li>
               ))}
             </ul>

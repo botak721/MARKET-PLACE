@@ -4,6 +4,7 @@ import { connection } from "next/server";
 import Header from "@/components/Header";
 import ProductCard from "@/components/ProductCard";
 import { prisma } from "@/lib/prisma";
+import { ambilRating } from "@/lib/rating";
 
 async function Etalase({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
@@ -14,6 +15,8 @@ async function Etalase({ params }: { params: Promise<{ slug: string }> }) {
     include: { products: { orderBy: { id: "desc" } } },
   });
   if (!toko) notFound();
+
+  const rating = await ambilRating(toko.products.map((p) => p.id));
 
   return (
     <>
@@ -34,6 +37,8 @@ async function Etalase({ params }: { params: Promise<{ slug: string }> }) {
             slug={toko.slug}
             harga={p.harga}
             gambar={p.gambar}
+            rata={rating.get(p.id)?.rata}
+            jumlahUlasan={rating.get(p.id)?.jumlah}
           />
         ))}
       </section>

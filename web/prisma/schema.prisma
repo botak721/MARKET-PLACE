@@ -27,6 +27,7 @@ model Product {
   store     Store      @relation(fields: [storeId], references: [id])
   createdAt DateTime   @default(now())
   cartItems CartItem[]
+  reviews Review[]
 }
 
 model User {
@@ -42,6 +43,7 @@ model User {
   store         Store?
   cartItems     CartItem[]
   orders        Order[]
+  reviews Review[]
 
   @@unique([email])
   @@map("user")
@@ -124,4 +126,19 @@ model OrderItem {
   nama    String
   harga   Int
   jumlah  Int
+  productId Int?
+  review Review?
+}
+
+model Review {
+  id          Int       @id @default(autoincrement())
+  bintang     Int
+  komentar    String?
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  productId   Int
+  product     Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+  orderItemId Int       @unique
+  orderItem   OrderItem @relation(fields: [orderItemId], references: [id], onDelete: Cascade)
+  createdAt   DateTime  @default(now())
 }

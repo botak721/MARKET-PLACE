@@ -31,7 +31,8 @@ export async function buatPesanan(alamat: string) {
   if (keranjang.length === 0) return { error: "Keranjangmu kosong." };
   if (keranjang.some((k) => k.product.store.ownerId === uid)) {
     return {
-      error: "Keranjang berisi produk tokomu sendiri. Hapus dulu dari keranjang.",
+      error:
+        "Keranjang berisi produk tokomu sendiri. Hapus dulu dari keranjang.",
     };
   }
 
@@ -54,6 +55,7 @@ export async function buatPesanan(alamat: string) {
             nama: k.product.nama,
             harga: k.product.harga,
             jumlah: k.jumlah,
+            productId: k.productId,
           })),
         },
       },
@@ -73,7 +75,10 @@ export async function ambilPesananSaya() {
 
   const pesanan = await prisma.order.findMany({
     where: { buyerId: uid },
-    include: { store: { select: { nama: true } }, items: true },
+    include: {
+      store: { select: { nama: true } },
+      items: { include: { review: { select: { id: true } } } },
+    },
     orderBy: { id: "desc" },
   });
 
@@ -89,6 +94,8 @@ export async function ambilPesananSaya() {
       nama: i.nama,
       harga: i.harga,
       jumlah: i.jumlah,
+      productId: i.productId,
+      sudahDiulas: i.review !== null,
     })),
   }));
 }
@@ -167,4 +174,49 @@ export async function batalkanPesanan(orderId: number) {
     where: { id: orderId, buyerId: uid, status: "MENUNGGU" },
     data: { status: "DIBATALKAN" },
   });
+}
+
+export async function kirimUlasan(
+  orderItemId: number,
+  bintang: number,
+  komentar: string,
+) {
+  const uid = await idPengguna();
+  if (!uid) return { error: "Masuk dulu untuk memberi ulasan." };
+
+  if (!Number.isInteger(bintang) || bintang < 1 || bintang > 5) {
+    return { error: "Pilih jumlah bintang dulu." };
+  }
+  const teks = komentar.trim();
+  if (teks.length > 500) return { error: "Komentar maksimal 500 karakter." };
+
+  const item = await prisma.orderItem.findFirst({
+    where: { id: orderItemId, order: { buyerId: uid, status: "SELESAI" } },
+    include: { review: { select: { id: true } } },
+  });
+  if (!item || item.productId === null) {
+    return { error: "Barang ini belum bisa diulas." };
+  }
+  if (item.review) return { error: "Kamu sudah mengulas barang ini." };
+
+  const produk = await prisma.product.findUnique({
+    where: { id: item.productId },
+    select: { id: true },
+  });
+  if (!produk) return { error: "Produk ini sudah tidak dijual." };
+
+  try {
+    await prisma.review.create({
+      data: {
+        bintang,
+        komentar: teks || null,
+        userId: uid,
+        productId: produk.id,
+        orderItemId: item.id,
+      },
+    });
+  } catch {
+    return { error: "Ulasan gagal disimpan. Coba lagi." };
+  }
+  return { error: null };
 }
