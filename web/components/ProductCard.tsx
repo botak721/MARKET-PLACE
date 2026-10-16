@@ -8,12 +8,23 @@ type Props = {
   harga: number;
   slug?: string;
   gambar?: string | null;
+  rata?: number;
+  jumlahUlasan?: number;
 };
 
 const pil =
   "mt-2 inline-block rounded-full bg-[#e3ecdf] px-2.5 py-0.5 text-sm text-hijau";
 
-export default function ProductCard({ id, nama, toko, harga, slug, gambar }: Props) {
+export default function ProductCard({
+  id,
+  nama,
+  toko,
+  harga,
+  slug,
+  gambar,
+  rata,
+  jumlahUlasan,
+}: Props) {
   return (
     <article className="rounded-3xl bg-kartu p-3.5 pb-5 transition-transform hover:-translate-y-1.5">
       {gambar ? (
@@ -37,6 +48,16 @@ export default function ProductCard({ id, nama, toko, harga, slug, gambar }: Pro
       <p className="mt-2.5 font-semibold text-hijau">
         Rp{harga.toLocaleString("id-ID")}
       </p>
+      {jumlahUlasan ? (
+        <p className="mt-1 text-sm">
+          <span className="text-[#d99a1e]">★</span>{" "}
+          {(rata ?? 0).toLocaleString("id-ID", {
+            minimumFractionDigits: 1,
+            maximumFractionDigits: 1,
+          })}{" "}
+          <span className="opacity-60">({jumlahUlasan})</span>
+        </p>
+      ) : null}
       {id !== undefined && <TambahKeranjang productId={id} />}
     </article>
   );
