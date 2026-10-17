@@ -10,9 +10,9 @@ import {
   ambilProdukSaya,
   tambahProduk,
   hapusProduk,
-  ubahStok,
 } from "./actions";
 import { upload } from "@vercel/blob/client";
+import FormEditProduk from "@/components/FormEditProduk";
 
 type Toko = { id: number; nama: string; slug: string } | null;
 type Produk = {
@@ -21,6 +21,7 @@ type Produk = {
   harga: number;
   gambar: string | null;
   stok: number;
+  deskripsi: string | null;
 };
 
 const kolom =
@@ -34,6 +35,7 @@ export default function DashboardPage() {
   const [produk, setProduk] = useState<Produk[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [mengunggah, setMengunggah] = useState(false);
+  const [sedangEdit, setSedangEdit] = useState<number | null>(null);
 
   useEffect(() => {
     if (!isPending && !session?.user) {
@@ -94,18 +96,6 @@ export default function DashboardPage() {
   async function handleHapus(id: number) {
     await hapusProduk(id);
     setProduk(await ambilProdukSaya());
-  }
-
-  async function handleUbahStok(p: Produk) {
-    setError(null);
-    const masuk = window.prompt(`Stok baru untuk ${p.nama}:`, String(p.stok));
-    if (masuk === null || masuk.trim() === "") return;
-    const hasil = await ubahStok(p.id, Number(masuk));
-    if (hasil.error) {
-      setError(hasil.error);
-    } else {
-      setProduk(await ambilProdukSaya());
-    }
   }
 
   if (isPending) return <p className="mt-8 text-center">Memuat...</p>;
@@ -184,6 +174,13 @@ export default function DashboardPage() {
               defaultValue={1}
               className={kolom}
             />
+            <textarea
+              name="deskripsi"
+              placeholder="Deskripsi produk (boleh dikosongkan)"
+              maxLength={1000}
+              rows={3}
+              className="w-full rounded-3xl border-2 border-hijau bg-transparent px-5 py-3"
+            />
             <input
               name="gambar"
               type="file"
@@ -200,45 +197,57 @@ export default function DashboardPage() {
             {produk.length === 0 && (
               <p className="text-sm opacity-70">Belum ada produk.</p>
             )}
-            {produk.map((p) => (
-              <div
-                key={p.id}
-                className="flex items-center justify-between gap-3 rounded-2xl bg-kartu px-4 py-3"
-              >
-                <div className="flex items-center gap-3">
-                  {p.gambar && (
-                    <img
-                      src={p.gambar}
-                      alt={p.nama}
-                      className="h-12 w-12 rounded-xl object-cover"
-                    />
-                  )}
-                  <div>
-                    <p className="font-semibold">{p.nama}</p>
-                    <p className="text-sm text-hijau">
-                      Rp{p.harga.toLocaleString("id-ID")}
-                    </p>
-                    <p className="text-sm opacity-70">
-                      {p.stok === 0 ? "Stok habis" : `Stok: ${p.stok}`}
-                    </p>
+            {produk.map((p) =>
+              sedangEdit === p.id ? (
+                <FormEditProduk
+                  key={p.id}
+                  produk={p}
+                  onBatal={() => setSedangEdit(null)}
+                  onSelesai={async () => {
+                    setSedangEdit(null);
+                    setProduk(await ambilProdukSaya());
+                  }}
+                />
+              ) : (
+                <div
+                  key={p.id}
+                  className="flex items-center justify-between gap-3 rounded-2xl bg-kartu px-4 py-3"
+                >
+                  <div className="flex items-center gap-3">
+                    {p.gambar && (
+                      <img
+                        src={p.gambar}
+                        alt={p.nama}
+                        className="h-12 w-12 rounded-xl object-cover"
+                      />
+                    )}
+                    <div>
+                      <p className="font-semibold">{p.nama}</p>
+                      <p className="text-sm text-hijau">
+                        Rp{p.harga.toLocaleString("id-ID")}
+                      </p>
+                      <p className="text-sm opacity-70">
+                        {p.stok === 0 ? "Stok habis" : `Stok: ${p.stok}`}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex flex-col items-end gap-1">
+                    <button
+                      onClick={() => setSedangEdit(p.id)}
+                      className="text-sm font-semibold text-hijau"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      onClick={() => handleHapus(p.id)}
+                      className="text-sm font-semibold text-red-600"
+                    >
+                      Hapus
+                    </button>
                   </div>
                 </div>
-                <div className="flex flex-col items-end gap-1">
-                  <button
-                    onClick={() => handleUbahStok(p)}
-                    className="text-sm font-semibold text-hijau"
-                  >
-                    Ubah stok
-                  </button>
-                  <button
-                    onClick={() => handleHapus(p.id)}
-                    className="text-sm font-semibold text-red-600"
-                  >
-                    Hapus
-                  </button>
-                </div>
-              </div>
-            ))}
+              ),
+            )}
           </div>
         </>
       )}

@@ -3,6 +3,7 @@
 import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { del } from "@vercel/blob";
 
 function buatSlug(nama: string) {
   return nama
@@ -57,16 +58,37 @@ export async function ambilProdukSaya() {
   return prisma.product.findMany({
     where: { storeId: toko.id },
     orderBy: { id: "desc" },
-    select: { id: true, nama: true, harga: true, gambar: true, stok: true },
+    select: {
+      id: true,
+      nama: true,
+      harga: true,
+      gambar: true,
+      stok: true,
+      deskripsi: true,
+    },
   });
 }
 
-export async function tambahProduk(formData: FormData) {
-  const toko = await ambilTokoSaya();
-  if (!toko) return { error: "Buka toko dulu sebelum menambah produk." };
+function bacaGambar(nilai: FormDataEntryValue | null) {
+  const teks = String(nilai ?? "").trim();
+  if (!teks)
+    return { gambar: null as string | null, error: null as string | null };
+  try {
+    const url = new URL(teks);
+    const valid =
+      url.protocol === "https:" &&
+      url.hostname.endsWith(".public.blob.vercel-storage.com");
+    if (!valid) return { gambar: null, error: "Alamat gambar tidak valid." };
+    return { gambar: url.toString(), error: null };
+  } catch {
+    return { gambar: null, error: "Alamat gambar tidak valid." };
+  }
+}
 
+function bacaProduk(formData: FormData) {
   const nama = String(formData.get("nama") ?? "").trim();
   if (nama.length < 2) return { error: "Nama produk minimal 2 karakter." };
+  if (nama.length > 100) return { error: "Nama produk maksimal 100 karakter." };
 
   const harga = Number(formData.get("harga"));
   if (!Number.isInteger(harga) || harga < 100) {
@@ -78,24 +100,57 @@ export async function tambahProduk(formData: FormData) {
     return { error: "Stok harus angka bulat, 0 sampai 100.000." };
   }
 
-  let gambar: string | null = null;
-  const urlGambar = String(formData.get("gambar") ?? "").trim();
-  if (urlGambar) {
-    try {
-      const url = new URL(urlGambar);
-      const valid =
-        url.protocol === "https:" &&
-        url.hostname.endsWith(".public.blob.vercel-storage.com");
-      if (!valid) return { error: "Alamat gambar tidak valid." };
-      gambar = url.toString();
-    } catch {
-      return { error: "Alamat gambar tidak valid." };
-    }
+  const deskripsi = String(formData.get("deskripsi") ?? "").trim();
+  if (deskripsi.length > 1000) {
+    return { error: "Deskripsi maksimal 1.000 karakter." };
   }
 
-  await prisma.product.create({
-    data: { nama, harga, gambar, stok, storeId: toko.id },
+  const g = bacaGambar(formData.get("gambar"));
+  if (g.error) return { error: g.error };
+
+  return {
+    error: null,
+    data: { nama, harga, stok, deskripsi: deskripsi || null, gambar: g.gambar },
+  };
+}
+
+export async function tambahProduk(formData: FormData) {
+  const toko = await ambilTokoSaya();
+  if (!toko) return { error: "Buka toko dulu sebelum menambah produk." };
+
+  const hasil = bacaProduk(formData);
+  if (!hasil.data) return { error: hasil.error ?? "Data produk tidak valid." };
+
+  await prisma.product.create({ data: { ...hasil.data, storeId: toko.id } });
+  return { error: null };
+}
+
+export async function editProduk(id: number, formData: FormData) {
+  const toko = await ambilTokoSaya();
+  if (!toko) return { error: "Buka toko dulu." };
+
+  const lama = await prisma.product.findFirst({
+    where: { id, storeId: toko.id },
+    select: { gambar: true },
   });
+  if (!lama) return { error: "Produk tidak ditemukan." };
+
+  const hasil = bacaProduk(formData);
+  if (!hasil.data) return { error: hasil.error ?? "Data produk tidak valid." };
+
+  const { gambar, ...sisa } = hasil.data;
+  await prisma.product.updateMany({
+    where: { id, storeId: toko.id },
+    data: { ...sisa, gambar: gambar ?? lama.gambar },
+  });
+
+  if (gambar && lama.gambar && gambar !== lama.gambar) {
+    try {
+      await del(lama.gambar);
+    } catch {
+      // file lama gagal dihapus, tidak mengganggu hasil edit
+    }
+  }
   return { error: null };
 }
 
