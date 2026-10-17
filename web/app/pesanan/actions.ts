@@ -3,6 +3,7 @@
 import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { randomUUID } from "node:crypto";
 
 const URUTAN = ["MENUNGGU", "DIPROSES", "DIKIRIM"];
 
@@ -53,11 +54,21 @@ export async function buatPesanan(alamat: string) {
         if (hasil.count === 0) throw new Error(`STOK:${k.product.nama}`);
       }
 
+      const pembayaran = await tx.payment.create({
+        data: {
+          kode: `RS-${randomUUID()}`,
+          buyerId: uid,
+          total: keranjang.reduce((s, k) => s + k.product.harga * k.jumlah, 0),
+        },
+      });
+
       for (const [storeId, daftar] of perToko) {
         await tx.order.create({
           data: {
             buyerId: uid,
+            status: "MENUNGGU_BAYAR",
             storeId,
+            paymentId: pembayaran.id,
             alamat: alamatBersih,
             total: daftar.reduce((s, k) => s + k.product.harga * k.jumlah, 0),
             items: {
@@ -91,6 +102,7 @@ export async function ambilPesananSaya() {
     where: { buyerId: uid },
     include: {
       store: { select: { nama: true } },
+      payment: { select: { total: true } },
       items: { include: { review: { select: { id: true } } } },
     },
     orderBy: { id: "desc" },
@@ -100,6 +112,8 @@ export async function ambilPesananSaya() {
     id: o.id,
     toko: o.store.nama,
     status: o.status,
+    paymentId: o.paymentId,
+    totalBayar: o.payment?.total ?? o.total,
     total: o.total,
     alamat: o.alamat,
     tanggal: o.createdAt.toISOString(),
@@ -125,7 +139,10 @@ export async function ambilPesananToko() {
   if (!toko) return [];
 
   const pesanan = await prisma.order.findMany({
-    where: { storeId: toko.id },
+    where: {
+      storeId: toko.id,
+      OR: [{ paymentId: null }, { payment: { status: "PAID" } }],
+    },
     include: { buyer: { select: { name: true } }, items: true },
     orderBy: { id: "desc" },
   });
@@ -177,31 +194,6 @@ export async function terimaPesanan(orderId: number) {
   await prisma.order.updateMany({
     where: { id: orderId, buyerId: uid, status: "DIKIRIM" },
     data: { status: "SELESAI" },
-  });
-}
-
-export async function batalkanPesanan(orderId: number) {
-  const uid = await idPengguna();
-  if (!uid) return;
-
-  await prisma.$transaction(async (tx) => {
-    const hasil = await tx.order.updateMany({
-      where: { id: orderId, buyerId: uid, status: "MENUNGGU" },
-      data: { status: "DIBATALKAN" },
-    });
-    if (hasil.count === 0) return;
-
-    const items = await tx.orderItem.findMany({
-      where: { orderId },
-      select: { productId: true, jumlah: true },
-    });
-    for (const i of items) {
-      if (i.productId === null) continue;
-      await tx.product.updateMany({
-        where: { id: i.productId },
-        data: { stok: { increment: i.jumlah } },
-      });
-    }
   });
 }
 

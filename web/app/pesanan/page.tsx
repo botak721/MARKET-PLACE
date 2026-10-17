@@ -3,8 +3,14 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import Script from "next/script";
+import { ambilPesananSaya, terimaPesanan } from "./actions";
+import {
+  mulaiPembayaran,
+  sinkronkanPembayaran,
+  batalkanPembayaran,
+} from "./pembayaran";
 import { useSession } from "@/lib/auth-client";
-import { ambilPesananSaya, terimaPesanan, batalkanPesanan } from "./actions";
 import { infoStatus } from "@/lib/status";
 import FormUlasan from "@/components/FormUlasan";
 
@@ -22,6 +28,7 @@ export default function PesananPage() {
   const router = useRouter();
   const { data: session, isPending } = useSession();
   const [pesanan, setPesanan] = useState<Pesanan[] | undefined>(undefined);
+  const [info, setInfo] = useState<string | null>(null);
 
   useEffect(() => {
     if (!isPending && !session?.user) router.push("/sign-in");
@@ -29,7 +36,11 @@ export default function PesananPage() {
 
   const userId = session?.user?.id;
   useEffect(() => {
-    if (userId) ambilPesananSaya().then(setPesanan);
+    if (userId) {
+      sinkronkanPembayaran()
+        .then(() => ambilPesananSaya())
+        .then(setPesanan);
+    }
   }, [userId]);
 
   async function terima(id: number) {
@@ -37,14 +48,54 @@ export default function PesananPage() {
     setPesanan(await ambilPesananSaya());
   }
 
-  async function batal(id: number) {
-    if (!confirm("Batalkan pesanan ini?")) return;
-    await batalkanPesanan(id);
+  async function muatUlang() {
+    await sinkronkanPembayaran();
     setPesanan(await ambilPesananSaya());
   }
 
-  async function muatUlang() {
-    setPesanan(await ambilPesananSaya());
+  type Snap = {
+    pay: (
+      token: string,
+      opsi: {
+        onSuccess?: () => void;
+        onPending?: () => void;
+        onError?: () => void;
+        onClose?: () => void;
+      },
+    ) => void;
+  };
+
+  async function bayar(paymentId: number | null) {
+    if (paymentId === null) return;
+    setInfo(null);
+    const hasil = await mulaiPembayaran(paymentId);
+    if (hasil.error || !hasil.token) {
+      setInfo(hasil.error ?? null);
+      return;
+    }
+    const snap = (window as unknown as { snap?: Snap }).snap;
+    if (!snap) {
+      setInfo("Jendela pembayaran belum siap, coba lagi sebentar.");
+      return;
+    }
+    snap.pay(hasil.token, {
+      onSuccess: muatUlang,
+      onPending: muatUlang,
+      onError: muatUlang,
+      onClose: muatUlang,
+    });
+  }
+
+  async function batalBayar(paymentId: number | null) {
+    if (paymentId === null) return;
+    if (
+      !confirm(
+        "Batalkan pembayaran? Semua pesanan di checkout ini ikut dibatalkan.",
+      )
+    )
+      return;
+    await batalkanPembayaran(paymentId);
+    await muatUlang();
   }
 
   if (isPending || pesanan === undefined) {
@@ -53,6 +104,13 @@ export default function PesananPage() {
 
   return (
     <main className="mx-auto max-w-2xl px-6 py-10">
+      <Script
+        src="https://app.sandbox.midtrans.com/snap/snap.js"
+        data-client-key={process.env.NEXT_PUBLIC_MIDTRANS_CLIENT_KEY}
+        strategy="afterInteractive"
+      />
+      {info && <p className="mt-4 text-red-600">{info}</p>}
+
       <Link href="/" className="text-sm font-semibold text-hijau underline">
         Kembali belanja
       </Link>
@@ -69,8 +127,10 @@ export default function PesananPage() {
               <h2 className="font-judul text-lg font-bold text-hijau">
                 {o.toko}
               </h2>
-              <span className="rounded-full bg-[#e3ecdf] px-2.5 py-0.5 text-sm text-hijau">
-                {o.status}
+              <span
+                className={`rounded-full px-2.5 py-0.5 text-sm ${infoStatus(o.status).kelas}`}
+              >
+                {infoStatus(o.status).label}
               </span>
             </div>
             <p className="mt-1 text-sm opacity-70">
@@ -107,13 +167,21 @@ export default function PesananPage() {
                 Pesanan diterima
               </button>
             )}
-            {o.status === "MENUNGGU" && (
-              <button
-                onClick={() => batal(o.id)}
-                className="mt-4 w-full rounded-full border-2 border-hijau px-5 py-3 font-semibold text-hijau"
-              >
-                Batalkan pesanan
-              </button>
+            {o.status === "MENUNGGU_BAYAR" && (
+              <div className="mt-4 space-y-2">
+                <button
+                  onClick={() => bayar(o.paymentId)}
+                  className="w-full rounded-full bg-hijau px-5 py-3 font-semibold text-krem"
+                >
+                  Bayar {rupiah(o.totalBayar)}
+                </button>
+                <button
+                  onClick={() => batalBayar(o.paymentId)}
+                  className="w-full rounded-full border-2 border-hijau px-5 py-3 font-semibold text-hijau"
+                >
+                  Batalkan pembayaran
+                </button>
+              </div>
             )}
           </section>
         ))}
