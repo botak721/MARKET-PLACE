@@ -58,10 +58,15 @@ export default function CheckoutPage() {
 
   return (
     <main className="mx-auto max-w-md px-6 py-10">
-      <Link href="/keranjang" className="text-sm font-semibold text-hijau underline">
+      <Link
+        href="/keranjang"
+        className="text-sm font-semibold text-hijau underline"
+      >
         Kembali ke keranjang
       </Link>
-      <h1 className="font-judul mt-3 text-3xl font-bold text-hijau">Checkout</h1>
+      <h1 className="font-judul mt-3 text-3xl font-bold text-hijau">
+        Checkout
+      </h1>
 
       <div className="mt-6 rounded-3xl bg-kartu p-5">
         <p>
@@ -70,7 +75,8 @@ export default function CheckoutPage() {
         <p className="mt-1 font-semibold">Total: {rupiah(total)}</p>
         {jumlahToko > 1 && (
           <p className="mt-2 text-sm opacity-70">
-            Pesananmu akan dipecah jadi {jumlahToko} pesanan, satu untuk tiap toko.
+            Pesananmu akan dipecah jadi {jumlahToko} pesanan, satu untuk tiap
+            toko.
           </p>
         )}
       </div>
@@ -95,7 +101,7 @@ export default function CheckoutPage() {
           disabled={proses}
           className="w-full rounded-full bg-hijau px-5 py-3 font-semibold text-krem disabled:opacity-50"
         >
-          {proses ? "Memproses..." : "Buat pesanan"}
+          {proses ? "Memproses..." : "Lanjut ke pembayaran"}
         </button>
       </form>
     </main>

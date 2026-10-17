@@ -28,7 +28,7 @@ model Product {
   store     Store      @relation(fields: [storeId], references: [id])
   createdAt DateTime   @default(now())
   cartItems CartItem[]
-  reviews Review[]
+  reviews   Review[]
 }
 
 model User {
@@ -44,7 +44,7 @@ model User {
   store         Store?
   cartItems     CartItem[]
   orders        Order[]
-  reviews Review[]
+  reviews       Review[]
 
   @@unique([email])
   @@map("user")
@@ -118,17 +118,19 @@ model Order {
   alamat    String
   createdAt DateTime    @default(now())
   items     OrderItem[]
+  paymentId Int?
+  payment   Payment?    @relation(fields: [paymentId], references: [id])
 }
 
 model OrderItem {
-  id      Int    @id @default(autoincrement())
-  orderId Int
-  order   Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  nama    String
-  harga   Int
-  jumlah  Int
+  id        Int     @id @default(autoincrement())
+  orderId   Int
+  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  nama      String
+  harga     Int
+  jumlah    Int
   productId Int?
-  review Review?
+  review    Review?
 }
 
 model Review {
@@ -142,4 +144,15 @@ model Review {
   orderItemId Int       @unique
   orderItem   OrderItem @relation(fields: [orderItemId], references: [id], onDelete: Cascade)
   createdAt   DateTime  @default(now())
+}
+
+model Payment {
+  id        Int      @id @default(autoincrement())
+  kode      String   @unique
+  buyerId   String
+  total     Int
+  status    String   @default("PENDING")
+  snapToken String?
+  createdAt DateTime @default(now())
+  orders    Order[]
 }
