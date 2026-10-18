@@ -7,13 +7,17 @@ import { tambahKeKeranjang } from "@/app/keranjang/actions";
 export default function TambahKeranjang({
   productId,
   stok,
+  ringkas = false,
 }: {
   productId: number;
   stok?: number;
+  ringkas?: boolean;
 }) {
   const router = useRouter();
   const [pesan, setPesan] = useState<string | null>(null);
   const [proses, setProses] = useState(false);
+
+  const ukuran = ringkas ? "px-2 text-xs sm:px-4 sm:text-sm" : "px-4 text-sm";
 
   async function klik() {
     setProses(true);
@@ -34,7 +38,7 @@ export default function TambahKeranjang({
       <div className="mt-3">
         <button
           disabled
-          className="w-full rounded-full border-2 border-hijau px-4 py-2 text-sm font-semibold text-hijau opacity-40"
+          className={`w-full rounded-full border-2 border-hijau py-2 font-semibold text-hijau opacity-40 ${ukuran}`}
         >
           Stok habis
         </button>
@@ -47,9 +51,18 @@ export default function TambahKeranjang({
       <button
         onClick={klik}
         disabled={proses}
-        className="w-full rounded-full border-2 border-hijau px-4 py-2 text-sm font-semibold text-hijau disabled:opacity-50"
+        className={`w-full rounded-full border-2 border-hijau py-2 font-semibold text-hijau disabled:opacity-50 ${ukuran}`}
       >
-        {proses ? "Memproses..." : "Tambah ke keranjang"}
+        {proses ? (
+          "Memproses..."
+        ) : ringkas ? (
+          <>
+            <span className="sm:hidden">+ Keranjang</span>
+            <span className="hidden sm:inline">Tambah ke keranjang</span>
+          </>
+        ) : (
+          "Tambah ke keranjang"
+        )}
       </button>
       {pesan && <p className="mt-1.5 text-xs text-hijau">{pesan}</p>}
     </div>

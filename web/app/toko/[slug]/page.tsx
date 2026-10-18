@@ -5,6 +5,7 @@ import Header from "@/components/Header";
 import ProductCard from "@/components/ProductCard";
 import { prisma } from "@/lib/prisma";
 import { ambilRating } from "@/lib/rating";
+import GridProduk from "@/components/GridProduk";
 
 async function Etalase({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
@@ -27,7 +28,7 @@ async function Etalase({ params }: { params: Promise<{ slug: string }> }) {
         <p className="mt-3">{toko.products.length} produk</p>
       </section>
 
-      <section className="grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-6 px-[5vw] pt-6 pb-16">
+      <GridProduk>
         {toko.products.map((p) => (
           <ProductCard
             key={p.id}
@@ -42,7 +43,7 @@ async function Etalase({ params }: { params: Promise<{ slug: string }> }) {
             jumlahUlasan={rating.get(p.id)?.jumlah}
           />
         ))}
-      </section>
+      </GridProduk>
     </>
   );
 }

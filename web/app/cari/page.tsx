@@ -3,6 +3,7 @@ import { connection } from "next/server";
 import Header from "@/components/Header";
 import ProductCard from "@/components/ProductCard";
 import { prisma } from "@/lib/prisma";
+import GridProduk from "@/components/GridProduk";
 
 async function Hasil({
   searchParams,
@@ -43,7 +44,7 @@ async function Hasil({
       {produk.length === 0 ? (
         <p className="px-[5vw] pb-16">Belum ada yang cocok. Coba kata lain.</p>
       ) : (
-        <section className="grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-6 px-[5vw] pt-6 pb-16">
+        <GridProduk>
           {produk.map((p) => (
             <ProductCard
               key={p.id}
@@ -56,7 +57,7 @@ async function Hasil({
               stok={p.stok}
             />
           ))}
-        </section>
+        </GridProduk>
       )}
     </>
   );
