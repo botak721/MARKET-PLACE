@@ -2,6 +2,7 @@ import { connection } from "next/server";
 import { prisma } from "@/lib/prisma";
 import ProductCard from "@/components/ProductCard";
 import { ambilRating } from "@/lib/rating";
+import GridProduk from "@/components/GridProduk";
 
 export default async function ProductList() {
   await connection();
@@ -13,7 +14,7 @@ export default async function ProductList() {
   const rating = await ambilRating(produk.map((p) => p.id));
 
   return (
-    <section className="grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-6 px-[5vw] pt-6 pb-16">
+    <GridProduk>
       {produk.map((p) => (
         <ProductCard
           key={p.id}
@@ -28,6 +29,6 @@ export default async function ProductList() {
           jumlahUlasan={rating.get(p.id)?.jumlah}
         />
       ))}
-    </section>
+    </GridProduk>
   );
 }
