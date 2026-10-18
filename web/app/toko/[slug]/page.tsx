@@ -6,6 +6,7 @@ import ProductCard from "@/components/ProductCard";
 import { prisma } from "@/lib/prisma";
 import { ambilRating } from "@/lib/rating";
 import GridProduk from "@/components/GridProduk";
+import Footer from "@/components/Footer";
 
 async function Etalase({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
@@ -61,6 +62,7 @@ export default function TokoPage({
           <Etalase params={params} />
         </Suspense>
       </main>
+      <Footer />
     </>
   );
 }

@@ -4,6 +4,7 @@ import Header from "@/components/Header";
 import ProductCard from "@/components/ProductCard";
 import { prisma } from "@/lib/prisma";
 import GridProduk from "@/components/GridProduk";
+import Footer from "@/components/Footer";
 
 async function Hasil({
   searchParams,
@@ -76,6 +77,7 @@ export default function CariPage({
           <Hasil searchParams={searchParams} />
         </Suspense>
       </main>
+      <Footer />
     </>
   );
 }

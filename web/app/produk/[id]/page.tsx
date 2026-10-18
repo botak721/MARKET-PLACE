@@ -6,6 +6,7 @@ import Header from "@/components/Header";
 import TambahKeranjang from "@/components/TambahKeranjang";
 import { prisma } from "@/lib/prisma";
 import { ambilRating } from "@/lib/rating";
+import Footer from "@/components/Footer";
 
 const tanggal = (d: Date) =>
   d.toLocaleDateString("id-ID", {
@@ -130,6 +131,7 @@ export default function ProdukPage({
           <Detail params={params} />
         </Suspense>
       </main>
+      <Footer />
     </>
   );
 }
