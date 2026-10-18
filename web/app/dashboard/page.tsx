@@ -14,6 +14,7 @@ import {
 import { upload } from "@vercel/blob/client";
 import FormEditProduk from "@/components/FormEditProduk";
 import { KATEGORI } from "@/lib/kategori";
+import RingkasanPenjualan from "@/components/RingkasanPenjualan";
 
 type Toko = { id: number; nama: string; slug: string } | null;
 type Produk = {
@@ -149,6 +150,8 @@ export default function DashboardPage() {
               Pesanan masuk
             </Link>
           </div>
+
+          <RingkasanPenjualan tokoId={toko.id} />
 
           <form onSubmit={handleTambah} className="space-y-3">
             <p className="font-semibold">Tambah produk</p>

@@ -105,7 +105,6 @@ web/
 - Pembayaran masih sandbox. Pesanan yang sudah dibayar tidak bisa dibatalkan dan belum ada pengembalian dana.
 - Belum ada ongkos kirim, jadi total pesanan hanya jumlah harga barang.
 - Penjual belum bisa menolak pesanan.
-- Foto produk tidak ikut terhapus dari Blob saat produknya dihapus. Foto yang diganti lewat edit produk sudah dibersihkan.
 - Stok yang sudah dikurangi untuk pembayaran yang tidak pernah dibuka baru dikembalikan setelah 24 jam, saat pembeli membuka halaman pesanannya lagi.
 
 ## Riwayat pengembangan
