@@ -24,6 +24,7 @@ model Product {
   harga     Int
   gambar    String?
   deskripsi String?
+  kategori  String?
   stok      Int        @default(10)
   storeId   Int
   store     Store      @relation(fields: [storeId], references: [id])

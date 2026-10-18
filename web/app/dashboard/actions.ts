@@ -4,6 +4,7 @@ import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { del } from "@vercel/blob";
+import { adaKategori } from "@/lib/kategori";
 
 function buatSlug(nama: string) {
   return nama
@@ -65,6 +66,7 @@ export async function ambilProdukSaya() {
       gambar: true,
       stok: true,
       deskripsi: true,
+      kategori: true,
     },
   });
 }
@@ -108,9 +110,12 @@ function bacaProduk(formData: FormData) {
   const g = bacaGambar(formData.get("gambar"));
   if (g.error) return { error: g.error };
 
+  const kategoriMasuk = String(formData.get("kategori") ?? "");
+  const kategori = adaKategori(kategoriMasuk) ? kategoriMasuk : null;
+
   return {
     error: null,
-    data: { nama, harga, stok, deskripsi: deskripsi || null, gambar: g.gambar },
+    data: { nama, harga, stok, deskripsi: deskripsi || null, gambar: g.gambar, kategori },
   };
 }
 

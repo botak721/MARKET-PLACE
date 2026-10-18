@@ -1,17 +1,22 @@
 import { connection } from "next/server";
 import { prisma } from "@/lib/prisma";
-import ProductCard from "@/components/ProductCard";
 import { ambilRating } from "@/lib/rating";
+import { adaKategori } from "@/lib/kategori";
+import ProductCard from "@/components/ProductCard";
 import GridProduk from "@/components/GridProduk";
 
-export default async function ProductList() {
+export default async function ProductList({ kategori }: { kategori?: string }) {
   await connection();
   const produk = await prisma.product.findMany({
+    where: adaKategori(kategori) ? { kategori } : undefined,
     include: { store: true },
     orderBy: { id: "asc" },
   });
-
   const rating = await ambilRating(produk.map((p) => p.id));
+
+  if (produk.length === 0) {
+    return <p className="px-[5vw] py-8">Belum ada produk di kategori ini.</p>;
+  }
 
   return (
     <GridProduk>

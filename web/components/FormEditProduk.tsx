@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { upload } from "@vercel/blob/client";
 import { editProduk } from "@/app/dashboard/actions";
+import { KATEGORI } from "@/lib/kategori";
 
 type Produk = {
   id: number;
@@ -11,6 +12,7 @@ type Produk = {
   stok: number;
   gambar: string | null;
   deskripsi: string | null;
+  kategori: string | null;
 };
 
 const kolom =
@@ -91,6 +93,18 @@ export default function FormEditProduk({
         rows={4}
         className="w-full rounded-3xl border-2 border-hijau bg-transparent px-5 py-3"
       />
+      <select
+        name="kategori"
+        defaultValue={produk.kategori ?? ""}
+        className={kolom}
+      >
+        <option value="">Tanpa kategori</option>
+        {KATEGORI.map((k) => (
+          <option key={k.slug} value={k.slug}>
+            {k.nama}
+          </option>
+        ))}
+      </select>
       <div className="flex items-center gap-3">
         {produk.gambar && (
           <img
