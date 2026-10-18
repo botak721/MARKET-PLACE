@@ -13,6 +13,7 @@ import {
 } from "./actions";
 import { upload } from "@vercel/blob/client";
 import FormEditProduk from "@/components/FormEditProduk";
+import { KATEGORI } from "@/lib/kategori";
 
 type Toko = { id: number; nama: string; slug: string } | null;
 type Produk = {
@@ -22,6 +23,7 @@ type Produk = {
   gambar: string | null;
   stok: number;
   deskripsi: string | null;
+  kategori: string | null;
 };
 
 const kolom =
@@ -181,6 +183,14 @@ export default function DashboardPage() {
               rows={3}
               className="w-full rounded-3xl border-2 border-hijau bg-transparent px-5 py-3"
             />
+            <select name="kategori" defaultValue="" className={kolom}>
+              <option value="">Pilih kategori (opsional)</option>
+              {KATEGORI.map((k) => (
+                <option key={k.slug} value={k.slug}>
+                  {k.nama}
+                </option>
+              ))}
+            </select>
             <input
               name="gambar"
               type="file"
