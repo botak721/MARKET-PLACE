@@ -70,7 +70,7 @@ export default function ProductCard({
           Stok habis
         </span>
       ) : stok !== undefined && stok <= 5 ? (
-        <span className="absolute top-2 left-2 rounded-full bg-[#f3e6c4] px-2 py-0.5 text-[11px] font-semibold text-[#7a5a12]">
+        <span className="absolute top-2 left-2 rounded-full bg-[#f3e6c4] px-2 py-0.5 text-xs font-semibold text-[#7a5a12]">
           Sisa {stok}
         </span>
       ) : null}
@@ -78,7 +78,7 @@ export default function ProductCard({
   );
 
   return (
-    <article className="flex flex-col rounded-3xl bg-kartu p-2.5 pb-3.5 transition-transform hover:-translate-y-1.5 sm:p-3.5 sm:pb-5">
+    <article className="flex flex-col rounded-3xl bg-kartu p-2.5 pb-3.5 transition-transform hover:-translate-y-1.5 sm:p-3.5 sm:pb-5 motion-reduce:transition-none motion-reduce:hover:translate-y-0">
       {id !== undefined ? <Link href={`/produk/${id}`}>{foto}</Link> : foto}
       <h2 className="line-clamp-2 min-h-10 text-sm font-semibold sm:min-h-12 sm:text-base">
         {id !== undefined ? (
@@ -107,7 +107,7 @@ export default function ProductCard({
               minimumFractionDigits: 1,
               maximumFractionDigits: 1,
             })}{" "}
-            <span className="opacity-60">({jumlahUlasan})</span>
+            <span className="opacity-70">({jumlahUlasan})</span>
           </p>
         ) : null}
       </div>

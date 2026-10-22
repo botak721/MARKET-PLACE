@@ -7,6 +7,7 @@ import TambahKeranjang from "@/components/TambahKeranjang";
 import { prisma } from "@/lib/prisma";
 import { ambilRating } from "@/lib/rating";
 import Footer from "@/components/Footer";
+import { namaKategori } from "@/lib/kategori";
 
 const tanggal = (d: Date) =>
   d.toLocaleDateString("id-ID", {
@@ -61,6 +62,14 @@ async function Detail({ params }: { params: Promise<{ id: string }> }) {
         >
           {produk.store.nama}
         </Link>
+        {namaKategori(produk.kategori) && (
+          <Link
+            href={`/?kategori=${produk.kategori}#produk`}
+            className="mt-3 ml-2 inline-block rounded-full border border-hijau/30 px-2.5 py-0.5 text-sm text-hijau"
+          >
+            {namaKategori(produk.kategori)}
+          </Link>
+        )}
         <p className="mt-4 text-2xl font-semibold text-hijau">
           Rp{produk.harga.toLocaleString("id-ID")}
         </p>
