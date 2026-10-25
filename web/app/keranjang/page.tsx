@@ -68,7 +68,7 @@ export default function KeranjangPage() {
               {grup.barang.map((b) => (
                 <div
                   key={b.productId}
-                  className="flex items-center justify-between gap-3"
+                  className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
                 >
                   <div>
                     <p className="font-semibold">{b.nama}</p>
@@ -90,21 +90,26 @@ export default function KeranjangPage() {
                   <div className="flex items-center gap-2">
                     <button
                       onClick={() => ubah(b.productId, b.jumlah - 1)}
-                      className="h-8 w-8 rounded-full border-2 border-hijau font-semibold text-hijau"
+                      aria-label={`Kurangi jumlah ${b.nama}`}
+                      className="h-11 w-11 rounded-full border-2 border-hijau text-lg font-semibold text-hijau"
                     >
                       -
                     </button>
-                    <span className="w-6 text-center">{b.jumlah}</span>
+                    <span className="w-8 text-center" aria-live="polite">
+                      {b.jumlah}
+                    </span>
                     <button
                       onClick={() => ubah(b.productId, b.jumlah + 1)}
                       disabled={b.jumlah >= b.stok}
-                      className="h-8 w-8 rounded-full border-2 border-hijau font-semibold text-hijau disabled:opacity-30"
+                      aria-label={`Tambah jumlah ${b.nama}`}
+                      className="h-11 w-11 rounded-full border-2 border-hijau text-lg font-semibold text-hijau disabled:opacity-30"
                     >
                       +
                     </button>
                     <button
                       onClick={() => hapus(b.productId)}
-                      className="ml-2 text-sm font-semibold text-red-600"
+                      aria-label={`Hapus ${b.nama} dari keranjang`}
+                      className="ml-1 min-h-11 px-3 text-sm font-semibold text-red-600"
                     >
                       Hapus
                     </button>

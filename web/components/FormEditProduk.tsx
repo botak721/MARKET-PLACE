@@ -17,6 +17,7 @@ type Produk = {
 
 const kolom =
   "w-full rounded-full border-2 border-hijau bg-transparent px-5 py-3";
+const label = "mb-1 block text-sm font-semibold";
 
 export default function FormEditProduk({
   produk,
@@ -29,6 +30,7 @@ export default function FormEditProduk({
 }) {
   const [error, setError] = useState<string | null>(null);
   const [proses, setProses] = useState(false);
+  const id = (n: string) => `edit-${n}-${produk.id}`;
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -62,65 +64,104 @@ export default function FormEditProduk({
       className="space-y-3 rounded-2xl bg-kartu p-4"
     >
       <p className="font-semibold">Edit produk</p>
-      {error && <p className="text-red-600">{error}</p>}
-      <input
-        name="nama"
-        defaultValue={produk.nama}
-        required
-        className={kolom}
-      />
-      <input
-        name="harga"
-        type="number"
-        defaultValue={produk.harga}
-        required
-        min={100}
-        className={kolom}
-      />
-      <input
-        name="stok"
-        type="number"
-        defaultValue={produk.stok}
-        required
-        min={0}
-        className={kolom}
-      />
-      <textarea
-        name="deskripsi"
-        defaultValue={produk.deskripsi ?? ""}
-        placeholder="Deskripsi produk (boleh dikosongkan)"
-        maxLength={1000}
-        rows={4}
-        className="w-full rounded-3xl border-2 border-hijau bg-transparent px-5 py-3"
-      />
-      <select
-        name="kategori"
-        defaultValue={produk.kategori ?? ""}
-        className={kolom}
-      >
-        <option value="">Tanpa kategori</option>
-        {KATEGORI.map((k) => (
-          <option key={k.slug} value={k.slug}>
-            {k.nama}
-          </option>
-        ))}
-      </select>
-      <div className="flex items-center gap-3">
-        {produk.gambar && (
-          <img
-            src={produk.gambar}
-            alt={produk.nama}
-            className="h-12 w-12 rounded-xl object-cover"
-          />
-        )}
-        <div className="text-sm">
-          <p className="opacity-70">
-            Pilih file hanya kalau mau mengganti foto.
-          </p>
+      {error && (
+        <p role="alert" className="text-red-600">
+          {error}
+        </p>
+      )}
+      <div>
+        <label htmlFor={id("nama")} className={label}>
+          Nama produk
+        </label>
+        <input
+          id={id("nama")}
+          name="nama"
+          defaultValue={produk.nama}
+          required
+          className={kolom}
+        />
+      </div>
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <label htmlFor={id("harga")} className={label}>
+            Harga (rupiah)
+          </label>
           <input
+            id={id("harga")}
+            name="harga"
+            type="number"
+            inputMode="numeric"
+            defaultValue={produk.harga}
+            required
+            min={100}
+            className={kolom}
+          />
+        </div>
+        <div>
+          <label htmlFor={id("stok")} className={label}>
+            Stok
+          </label>
+          <input
+            id={id("stok")}
+            name="stok"
+            type="number"
+            inputMode="numeric"
+            defaultValue={produk.stok}
+            required
+            min={0}
+            className={kolom}
+          />
+        </div>
+      </div>
+      <div>
+        <label htmlFor={id("deskripsi")} className={label}>
+          Deskripsi
+        </label>
+        <textarea
+          id={id("deskripsi")}
+          name="deskripsi"
+          defaultValue={produk.deskripsi ?? ""}
+          maxLength={1000}
+          rows={4}
+          className="w-full rounded-3xl border-2 border-hijau bg-transparent px-5 py-3"
+        />
+      </div>
+      <div>
+        <label htmlFor={id("kategori")} className={label}>
+          Kategori
+        </label>
+        <select
+          id={id("kategori")}
+          name="kategori"
+          defaultValue={produk.kategori ?? ""}
+          className={kolom}
+        >
+          <option value="">Tanpa kategori</option>
+          {KATEGORI.map((k) => (
+            <option key={k.slug} value={k.slug}>
+              {k.nama}
+            </option>
+          ))}
+        </select>
+      </div>
+      <div>
+        <label htmlFor={id("gambar")} className={label}>
+          Ganti foto (kosongkan kalau tidak diganti)
+        </label>
+        <div className="flex items-center gap-3">
+          {produk.gambar && (
+            <img
+              src={produk.gambar}
+              alt={`Foto saat ini: ${produk.nama}`}
+              className="h-12 w-12 rounded-xl object-cover"
+            />
+          )}
+          <input
+            id={id("gambar")}
             name="gambar"
             type="file"
             accept="image/png,image/jpeg,image/webp"
+            className="w-full text-sm"
           />
         </div>
       </div>
@@ -128,14 +169,14 @@ export default function FormEditProduk({
         <button
           type="submit"
           disabled={proses}
-          className="flex-1 rounded-full bg-hijau px-5 py-3 font-semibold text-krem disabled:opacity-50"
+          className="min-h-11 flex-1 rounded-full bg-hijau px-5 py-3 font-semibold text-krem disabled:opacity-50"
         >
           {proses ? "Menyimpan..." : "Simpan"}
         </button>
         <button
           type="button"
           onClick={onBatal}
-          className="rounded-full border-2 border-hijau px-5 py-3 font-semibold text-hijau"
+          className="min-h-11 rounded-full border-2 border-hijau px-5 py-3 font-semibold text-hijau"
         >
           Batal
         </button>
