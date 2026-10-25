@@ -8,6 +8,7 @@ import { prisma } from "@/lib/prisma";
 import { ambilRating } from "@/lib/rating";
 import Footer from "@/components/Footer";
 import { namaKategori } from "@/lib/kategori";
+import type { Metadata } from "next";
 
 const tanggal = (d: Date) =>
   d.toLocaleDateString("id-ID", {
@@ -125,6 +126,56 @@ async function Detail({ params }: { params: Promise<{ id: string }> }) {
       </div>
     </section>
   );
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}): Promise<Metadata> {
+  const { id } = await params;
+  await connection();
+
+  const productId = Number(id);
+  if (!Number.isInteger(productId) || productId < 1 || productId > 2147483647) {
+    return { title: "Produk tidak ditemukan" };
+  }
+
+  const p = await prisma.product.findUnique({
+    where: { id: productId },
+    select: {
+      nama: true,
+      harga: true,
+      gambar: true,
+      deskripsi: true,
+      store: { select: { nama: true } },
+    },
+  });
+  if (!p) return { title: "Produk tidak ditemukan" };
+
+  const ringkas = p.deskripsi
+    ? p.deskripsi.replace(/\s+/g, " ").slice(0, 150)
+    : `${p.nama} dari ${p.store.nama}.`;
+  const deskripsi = `Rp${p.harga.toLocaleString("id-ID")}. ${ringkas}`;
+  const judul = `${p.nama} dari ${p.store.nama}`;
+
+  return {
+    title: judul,
+    description: deskripsi,
+    openGraph: {
+      title: judul,
+      description: deskripsi,
+      siteName: "Rizki Online Shop",
+      locale: "id_ID",
+      images: p.gambar ? [p.gambar] : undefined,
+    },
+    twitter: {
+      card: p.gambar ? "summary_large_image" : "summary",
+      title: judul,
+      description: deskripsi,
+      images: p.gambar ? [p.gambar] : undefined,
+    },
+  };
 }
 
 export default function ProdukPage({

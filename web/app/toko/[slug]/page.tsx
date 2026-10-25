@@ -7,6 +7,7 @@ import { prisma } from "@/lib/prisma";
 import { ambilRating } from "@/lib/rating";
 import GridProduk from "@/components/GridProduk";
 import Footer from "@/components/Footer";
+import type { Metadata } from "next";
 
 async function Etalase({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
@@ -47,6 +48,45 @@ async function Etalase({ params }: { params: Promise<{ slug: string }> }) {
       </GridProduk>
     </>
   );
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  await connection();
+
+  const toko = await prisma.store.findUnique({
+    where: { slug },
+    select: {
+      nama: true,
+      _count: { select: { products: true } },
+      products: {
+        where: { gambar: { not: null } },
+        orderBy: { id: "desc" },
+        take: 1,
+        select: { gambar: true },
+      },
+    },
+  });
+  if (!toko) return { title: "Toko tidak ditemukan" };
+
+  const deskripsi = `${toko._count.products} produk dari ${toko.nama}.`;
+  const foto = toko.products[0]?.gambar ?? undefined;
+
+  return {
+    title: toko.nama,
+    description: deskripsi,
+    openGraph: {
+      title: toko.nama,
+      description: deskripsi,
+      siteName: "Rizki Online Shop",
+      locale: "id_ID",
+      images: foto ? [foto] : undefined,
+    },
+  };
 }
 
 export default function TokoPage({
