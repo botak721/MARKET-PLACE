@@ -6,6 +6,7 @@ import ProductList from "@/components/ProductList";
 import Statistik from "@/components/Statistik";
 import FilterKategori from "@/components/FilterKategori";
 import { bacaHalaman, bacaUrutan } from "@/lib/daftar-produk";
+import ProdukPilihan from "@/components/ProdukPilihan";
 
 async function Daftar({
   searchParams,
@@ -28,7 +29,7 @@ async function Daftar({
 export default function Home({
   searchParams,
 }: {
- searchParams: Promise<{ kategori?: string; urut?: string; hal?: string }>
+  searchParams: Promise<{ kategori?: string; urut?: string; hal?: string }>;
 }) {
   return (
     <>
@@ -61,6 +62,10 @@ export default function Home({
             <Statistik />
           </Suspense>
         </section>
+
+        <Suspense fallback={null}>
+          <ProdukPilihan />
+        </Suspense>
 
         <div id="produk" className="scroll-mt-20">
           <Suspense
