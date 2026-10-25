@@ -5,14 +5,14 @@ import Footer from "@/components/Footer";
 import ProductList from "@/components/ProductList";
 import Statistik from "@/components/Statistik";
 import FilterKategori from "@/components/FilterKategori";
-import { bacaHalaman, bacaUrutan } from "@/lib/daftar-produk";
 import ProdukPilihan from "@/components/ProdukPilihan";
+import JelajahToko from "@/components/JelajahToko";
+import FotoHero from "@/components/FotoHero";
+import { bacaHalaman, bacaUrutan } from "@/lib/daftar-produk";
 
-async function Daftar({
-  searchParams,
-}: {
-  searchParams: Promise<{ kategori?: string; urut?: string; hal?: string }>;
-}) {
+type Param = { kategori?: string; urut?: string; hal?: string };
+
+async function Daftar({ searchParams }: { searchParams: Promise<Param> }) {
   const { kategori, urut, hal } = await searchParams;
   return (
     <>
@@ -29,50 +29,61 @@ async function Daftar({
 export default function Home({
   searchParams,
 }: {
-  searchParams: Promise<{ kategori?: string; urut?: string; hal?: string }>;
+  searchParams: Promise<Param>;
 }) {
   return (
     <>
       <Header />
 
-      <main className="mx-auto max-w-[1200px]">
-        <section className="px-[5vw] pt-10 pb-4 sm:pt-14">
-          <h1 className="font-judul max-w-[16ch] text-[clamp(2rem,6vw,3.75rem)] leading-[1.08] font-bold">
-            Barang bagus dari toko-toko kecil
-          </h1>
-          <p className="mt-3 max-w-[48ch] sm:text-lg">
-            Tiap penjual punya etalasenya sendiri. Pilih barangnya, bayar
-            sekali, dan tiap toko mengirim pesanannya masing-masing.
-          </p>
-          <div className="mt-6 flex flex-wrap gap-3">
-            <a
-              href="#produk"
-              className="rounded-full bg-hijau px-6 py-3 font-semibold text-krem"
-            >
-              Mulai belanja
-            </a>
-            <Link
-              href="/dashboard"
-              className="rounded-full border-2 border-hijau px-6 py-3 font-semibold text-hijau"
-            >
-              Buka tokomu
-            </Link>
+      <main>
+        <section className="bg-hijau text-krem">
+          <div className="mx-auto grid max-w-[1200px] items-center gap-8 px-[5vw] py-10 md:grid-cols-[1.1fr_1fr] md:py-14">
+            <div>
+              <h1 className="font-judul max-w-[16ch] text-[clamp(2.25rem,6vw,4rem)] leading-[1.05] font-bold">
+                Barang bagus dari toko-toko kecil
+              </h1>
+              <p className="mt-4 max-w-[46ch] text-krem/85 sm:text-lg">
+                Tiap penjual punya etalasenya sendiri. Pilih barangnya, bayar
+                sekali, dan tiap toko mengirim pesanannya masing-masing.
+              </p>
+              <div className="mt-6 flex flex-wrap gap-3">
+                <a
+                  href="#produk"
+                  className="inline-flex min-h-11 items-center rounded-full bg-kunyit px-6 font-semibold text-tinta"
+                >
+                  Mulai belanja
+                </a>
+                <Link
+                  href="/dashboard"
+                  className="inline-flex min-h-11 items-center rounded-full border-2 border-krem px-6 font-semibold text-krem"
+                >
+                  Buka tokomu
+                </Link>
+              </div>
+              <Suspense fallback={<p className="mt-6 h-5" />}>
+                <Statistik />
+              </Suspense>
+            </div>
+            <Suspense fallback={null}>
+              <FotoHero />
+            </Suspense>
           </div>
-          <Suspense fallback={<p className="mt-6 h-5" />}>
-            <Statistik />
-          </Suspense>
         </section>
 
-        <Suspense fallback={null}>
-          <ProdukPilihan />
-        </Suspense>
-
-        <div id="produk" className="scroll-mt-20">
-          <Suspense
-            fallback={<p className="px-[5vw] py-6">Memuat produk...</p>}
-          >
-            <Daftar searchParams={searchParams} />
+        <div className="mx-auto max-w-[1200px]">
+          <Suspense fallback={null}>
+            <ProdukPilihan />
           </Suspense>
+          <Suspense fallback={null}>
+            <JelajahToko />
+          </Suspense>
+          <div id="produk" className="scroll-mt-20">
+            <Suspense
+              fallback={<p className="px-[5vw] py-6">Memuat produk...</p>}
+            >
+              <Daftar searchParams={searchParams} />
+            </Suspense>
+          </div>
         </div>
       </main>
 
