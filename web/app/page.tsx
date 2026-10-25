@@ -5,17 +5,22 @@ import Footer from "@/components/Footer";
 import ProductList from "@/components/ProductList";
 import Statistik from "@/components/Statistik";
 import FilterKategori from "@/components/FilterKategori";
+import { bacaHalaman, bacaUrutan } from "@/lib/daftar-produk";
 
 async function Daftar({
   searchParams,
 }: {
-  searchParams: Promise<{ kategori?: string }>;
+  searchParams: Promise<{ kategori?: string; urut?: string; hal?: string }>;
 }) {
-  const { kategori } = await searchParams;
+  const { kategori, urut, hal } = await searchParams;
   return (
     <>
       <FilterKategori aktif={kategori} />
-      <ProductList kategori={kategori} />
+      <ProductList
+        kategori={kategori}
+        urut={bacaUrutan(urut)}
+        halaman={bacaHalaman(hal)}
+      />
     </>
   );
 }
@@ -23,7 +28,7 @@ async function Daftar({
 export default function Home({
   searchParams,
 }: {
-  searchParams: Promise<{ kategori?: string }>;
+ searchParams: Promise<{ kategori?: string; urut?: string; hal?: string }>
 }) {
   return (
     <>
