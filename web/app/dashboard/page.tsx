@@ -30,6 +30,7 @@ type Produk = {
 const kolom =
   "w-full rounded-full border-2 border-hijau bg-transparent px-5 py-3";
 const tombol = "w-full rounded-full bg-hijau px-5 py-3 font-semibold text-krem";
+const label = "mb-1 block text-sm font-semibold";
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -96,7 +97,14 @@ export default function DashboardPage() {
     }
   }
 
-  async function handleHapus(id: number) {
+  async function handleHapus(id: number, nama: string) {
+    if (
+      !confirm(
+        `Hapus "${nama}"? Produk, foto, dan ulasannya akan dihapus permanen.`,
+      )
+    ) {
+      return;
+    }
     await hapusProduk(id);
     setProduk(await ambilProdukSaya());
   }
@@ -116,14 +124,24 @@ export default function DashboardPage() {
       {toko === null && (
         <form onSubmit={handleBukaToko} className="space-y-3">
           <p className="font-semibold">Mau jualan? Buka tokomu.</p>
-          {error && <p className="text-red-600">{error}</p>}
-          <input
-            name="nama"
-            placeholder="Nama toko"
-            required
-            minLength={3}
-            className={kolom}
-          />
+          {error && (
+            <p role="alert" className="text-red-600">
+              {error}
+            </p>
+          )}
+          <div>
+            <label htmlFor="nama-toko" className={label}>
+              Nama toko
+            </label>
+            <input
+              id="nama-toko"
+              name="nama"
+              placeholder="Contoh: Kopi Pagi"
+              required
+              minLength={3}
+              className={kolom}
+            />
+          </div>
           <button type="submit" className={tombol}>
             Buka toko
           </button>
@@ -155,51 +173,90 @@ export default function DashboardPage() {
 
           <form onSubmit={handleTambah} className="space-y-3">
             <p className="font-semibold">Tambah produk</p>
-            {error && <p className="text-red-600">{error}</p>}
-            <input
-              name="nama"
-              placeholder="Nama produk"
-              required
-              className={kolom}
-            />
-            <input
-              name="harga"
-              type="number"
-              placeholder="Harga (rupiah)"
-              required
-              min={100}
-              className={kolom}
-            />
-            <input
-              name="stok"
-              type="number"
-              placeholder="Stok"
-              required
-              min={0}
-              defaultValue={1}
-              className={kolom}
-            />
-            <textarea
-              name="deskripsi"
-              placeholder="Deskripsi produk (boleh dikosongkan)"
-              maxLength={1000}
-              rows={3}
-              className="w-full rounded-3xl border-2 border-hijau bg-transparent px-5 py-3"
-            />
-            <select name="kategori" defaultValue="" className={kolom}>
-              <option value="">Pilih kategori (opsional)</option>
-              {KATEGORI.map((k) => (
-                <option key={k.slug} value={k.slug}>
-                  {k.nama}
-                </option>
-              ))}
-            </select>
-            <input
-              name="gambar"
-              type="file"
-              accept="image/png,image/jpeg,image/webp"
-              className="w-full text-sm"
-            />
+            {error && (
+              <p role="alert" className="text-red-600">
+                {error}
+              </p>
+            )}
+            <div>
+              <label htmlFor="tambah-nama" className={label}>
+                Nama produk
+              </label>
+              <input id="tambah-nama" name="nama" required className={kolom} />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label htmlFor="tambah-harga" className={label}>
+                  Harga (rupiah)
+                </label>
+                <input
+                  id="tambah-harga"
+                  name="harga"
+                  type="number"
+                  inputMode="numeric"
+                  required
+                  min={100}
+                  className={kolom}
+                />
+              </div>
+              <div>
+                <label htmlFor="tambah-stok" className={label}>
+                  Stok
+                </label>
+                <input
+                  id="tambah-stok"
+                  name="stok"
+                  type="number"
+                  inputMode="numeric"
+                  required
+                  min={0}
+                  defaultValue={1}
+                  className={kolom}
+                />
+              </div>
+            </div>
+            <div>
+              <label htmlFor="tambah-deskripsi" className={label}>
+                Deskripsi (boleh dikosongkan)
+              </label>
+              <textarea
+                id="tambah-deskripsi"
+                name="deskripsi"
+                maxLength={1000}
+                rows={3}
+                className="w-full rounded-3xl border-2 border-hijau bg-transparent px-5 py-3"
+              />
+            </div>
+            <div>
+              <label htmlFor="tambah-kategori" className={label}>
+                Kategori
+              </label>
+              <select
+                id="tambah-kategori"
+                name="kategori"
+                defaultValue=""
+                className={kolom}
+              >
+                <option value="">Tanpa kategori</option>
+                {KATEGORI.map((k) => (
+                  <option key={k.slug} value={k.slug}>
+                    {k.nama}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label htmlFor="tambah-gambar" className={label}>
+                Foto produk (boleh dikosongkan)
+              </label>
+              <input
+                id="tambah-gambar"
+                name="gambar"
+                type="file"
+                accept="image/png,image/jpeg,image/webp"
+                className="w-full text-sm"
+              />
+            </div>
             <button type="submit" disabled={mengunggah} className={tombol}>
               {mengunggah ? "Mengunggah..." : "Tambah produk"}
             </button>
@@ -244,16 +301,18 @@ export default function DashboardPage() {
                       </p>
                     </div>
                   </div>
-                  <div className="flex flex-col items-end gap-1">
+                  <div className="flex flex-col items-end">
                     <button
                       onClick={() => setSedangEdit(p.id)}
-                      className="text-sm font-semibold text-hijau"
+                      aria-label={`Edit ${p.nama}`}
+                      className="min-h-11 px-3 text-sm font-semibold text-hijau"
                     >
                       Edit
                     </button>
                     <button
-                      onClick={() => handleHapus(p.id)}
-                      className="text-sm font-semibold text-red-600"
+                      onClick={() => handleHapus(p.id, p.nama)}
+                      aria-label={`Hapus ${p.nama}`}
+                      className="min-h-11 px-3 text-sm font-semibold text-red-600"
                     >
                       Hapus
                     </button>

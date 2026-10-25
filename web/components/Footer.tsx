@@ -10,7 +10,7 @@ export default function Footer() {
           <Link href="/pesanan">Pesanan</Link>
           <Link href="/dashboard">Jual barang</Link>
         </nav>
-        <p className="opacity-60">
+        <p className="opacity-70">
           Proyek belajar. Pembayaran masih mode uji coba.
         </p>
       </div>
