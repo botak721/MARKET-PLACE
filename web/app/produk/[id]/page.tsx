@@ -80,7 +80,7 @@ async function Detail({ params }: { params: Promise<{ id: string }> }) {
               minimumFractionDigits: 1,
               maximumFractionDigits: 1,
             })}{" "}
-            <span className="opacity-60">({rating.jumlah} ulasan)</span>
+            <span className="opacity-70">({rating.jumlah} ulasan)</span>
           </p>
         )}
         <p className="mt-2 text-sm opacity-70">
@@ -112,7 +112,7 @@ async function Detail({ params }: { params: Promise<{ id: string }> }) {
                 <span className="font-semibold">
                   {r.user.name.split(" ")[0]}
                 </span>
-                <span className="opacity-60">{tanggal(r.createdAt)}</span>
+                <span className="opacity-70">{tanggal(r.createdAt)}</span>
               </div>
               <p className="mt-1 text-[#d99a1e]">
                 {"★".repeat(r.bintang)}

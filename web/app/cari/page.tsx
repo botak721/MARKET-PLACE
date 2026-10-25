@@ -3,16 +3,24 @@ import { connection } from "next/server";
 import Header from "@/components/Header";
 import ProductCard from "@/components/ProductCard";
 import { prisma } from "@/lib/prisma";
+import { ambilRating } from "@/lib/rating";
+import {
+  PER_HALAMAN,
+  aturUrutan,
+  bacaHalaman,
+  bacaUrutan,
+} from "@/lib/daftar-produk";
 import GridProduk from "@/components/GridProduk";
+import PilihUrutan from "@/components/PilihUrutan";
+import Paginasi from "@/components/Paginasi";
 import Footer from "@/components/Footer";
 
-async function Hasil({
-  searchParams,
-}: {
-  searchParams: Promise<{ q?: string }>;
-}) {
-  const { q } = await searchParams;
+type Param = { q?: string; urut?: string; hal?: string };
+
+async function Hasil({ searchParams }: { searchParams: Promise<Param> }) {
+  const { q, urut: urutMasuk, hal } = await searchParams;
   const kata = (q ?? "").trim();
+  const urut = bacaUrutan(urutMasuk);
   await connection();
 
   if (!kata) {
@@ -21,17 +29,25 @@ async function Hasil({
     );
   }
 
+  const where = {
+    OR: [
+      { nama: { contains: kata, mode: "insensitive" as const } },
+      { store: { nama: { contains: kata, mode: "insensitive" as const } } },
+    ],
+  };
+
+  const total = await prisma.product.count({ where });
+  const totalHalaman = Math.max(1, Math.ceil(total / PER_HALAMAN));
+  const aktif = Math.min(bacaHalaman(hal), totalHalaman);
+
   const produk = await prisma.product.findMany({
-    where: {
-      OR: [
-        { nama: { contains: kata, mode: "insensitive" } },
-        { store: { nama: { contains: kata, mode: "insensitive" } } },
-      ],
-    },
+    where,
     include: { store: true },
-    orderBy: { id: "desc" },
-    take: 48,
+    orderBy: aturUrutan(urut),
+    skip: (aktif - 1) * PER_HALAMAN,
+    take: PER_HALAMAN,
   });
+  const rating = await ambilRating(produk.map((p) => p.id));
 
   return (
     <>
@@ -39,7 +55,12 @@ async function Hasil({
         <h1 className="font-judul text-[clamp(1.75rem,4vw,2.75rem)] leading-[1.1] font-bold">
           {`Hasil untuk "${kata}"`}
         </h1>
-        <p className="mt-3">{produk.length} produk ditemukan</p>
+        <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
+          <p>{total} produk ditemukan</p>
+          {total > 0 && (
+            <PilihUrutan aktif={urut} dasar="/cari" param={{ q: kata }} />
+          )}
+        </div>
       </section>
 
       {produk.length === 0 ? (
@@ -56,10 +77,19 @@ async function Hasil({
               harga={p.harga}
               gambar={p.gambar}
               stok={p.stok}
+              rata={rating.get(p.id)?.rata}
+              jumlahUlasan={rating.get(p.id)?.jumlah}
             />
           ))}
         </GridProduk>
       )}
+
+      <Paginasi
+        halaman={aktif}
+        totalHalaman={totalHalaman}
+        dasar="/cari"
+        param={{ q: kata, urut: urut === "terbaru" ? undefined : urut }}
+      />
     </>
   );
 }
@@ -67,7 +97,7 @@ async function Hasil({
 export default function CariPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string }>;
+  searchParams: Promise<Param>;
 }) {
   return (
     <>
