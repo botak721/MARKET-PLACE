@@ -8,11 +8,18 @@
 }
 
 @theme inline {
-  --font-judul: var(--font-fraunces);
+  --font-judul: var(--font-bricolage);
   --font-sans: var(--font-jakarta);
 }
 
 body {
   background: var(--color-krem);
   color: var(--color-tinta);
+}
+
+@utility scrollbar-hide {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
 }
