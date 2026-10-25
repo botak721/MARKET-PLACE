@@ -15,7 +15,7 @@ type Props = {
 };
 
 const pil =
-  "mt-1.5 inline-block max-w-full self-start truncate rounded-full bg-[#e3ecdf] px-2.5 py-0.5 text-xs text-hijau sm:mt-2 sm:text-sm";
+  "mt-1.5 inline-block max-w-full self-start truncate rounded-full px-2.5 py-0.5 text-xs sm:mt-2 sm:text-sm";
 
 export default function ProductCard({
   id,
@@ -28,7 +28,7 @@ export default function ProductCard({
   jumlahUlasan,
   stok,
 }: Props) {
-  const warna = warnaDari(nama);
+  const warna = warnaDari(toko);
   const huruf = (Array.from(nama.trim())[0] ?? "?").toUpperCase();
 
   const foto = (
@@ -76,11 +76,20 @@ export default function ProductCard({
         )}
       </h2>
       {slug ? (
-        <Link href={`/toko/${slug}`} className={pil}>
+        <Link
+          href={`/toko/${slug}`}
+          className={pil}
+          style={{ backgroundColor: warna.bg, color: warna.teks }}
+        >
           {toko}
         </Link>
       ) : (
-        <p className={pil}>{toko}</p>
+        <p
+          className={pil}
+          style={{ backgroundColor: warna.bg, color: warna.teks }}
+        >
+          {toko}
+        </p>
       )}
       <div className="mt-2 flex flex-wrap items-baseline justify-between gap-x-2 sm:mt-2.5">
         <p className="font-semibold text-hijau">
