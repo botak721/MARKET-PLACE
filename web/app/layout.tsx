@@ -9,7 +9,11 @@ const jakarta = Plus_Jakarta_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "Rizki Online Shop",
+  metadataBase: new URL("https://market-place-roan-phi.vercel.app"),
+  title: {
+    default: "Rizki Online Shop",
+    template: "%s | Rizki Online Shop",
+  },
   description: "Marketplace barang dari toko-toko kecil",
 };
 

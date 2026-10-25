@@ -14,7 +14,12 @@ import GridProduk from "@/components/GridProduk";
 import PilihUrutan from "@/components/PilihUrutan";
 import Paginasi from "@/components/Paginasi";
 import Footer from "@/components/Footer";
+import type { Metadata } from "next";
 
+export const metadata: Metadata = {
+  title: "Cari produk",
+  robots: { index: false },
+};
 type Param = { q?: string; urut?: string; hal?: string };
 
 async function Hasil({ searchParams }: { searchParams: Promise<Param> }) {
