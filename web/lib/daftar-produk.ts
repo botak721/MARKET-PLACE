@@ -1,3 +1,4 @@
+import { adaKategori } from "@/lib/kategori";
 export const PER_HALAMAN = 12;
 
 export const URUTAN = [
@@ -46,4 +47,62 @@ export function buatUrl(
   }
   const s = qs.toString();
   return `${dasar}${s ? `?${s}` : ""}${hash}`;
+}
+export type ParamMentah = Record<string, string | string[] | undefined>;
+
+export function satu(nilai?: string | string[]) {
+  return Array.isArray(nilai) ? nilai[0] : nilai;
+}
+
+export type NilaiFilter = {
+  kategori: string[];
+  min?: number;
+  maks?: number;
+  tersedia: boolean;
+  rating: 0 | 3 | 4;
+};
+
+function bacaAngka(nilai?: string) {
+  if (!nilai) return undefined;
+  const n = Number(nilai);
+  return Number.isInteger(n) && n >= 0 && n <= 2_000_000_000 ? n : undefined;
+}
+
+export function bacaFilter(p: ParamMentah): NilaiFilter {
+  const mentah = Array.isArray(p.kategori)
+    ? p.kategori.join(",")
+    : (p.kategori ?? "");
+  const kategori = [
+    ...new Set(
+      mentah
+        .split(",")
+        .map((k) => k.trim())
+        .filter((k) => adaKategori(k)),
+    ),
+  ];
+
+  let min = bacaAngka(satu(p.min));
+  let maks = bacaAngka(satu(p.maks));
+  if (min !== undefined && maks !== undefined && min > maks) {
+    [min, maks] = [maks, min];
+  }
+
+  const r = satu(p.rating);
+  return {
+    kategori,
+    min,
+    maks,
+    tersedia: satu(p.tersedia) === "1",
+    rating: r === "4" ? 4 : r === "3" ? 3 : 0,
+  };
+}
+
+export function paramFilter(f: NilaiFilter): Record<string, string | undefined> {
+  return {
+    kategori: f.kategori.length > 0 ? f.kategori.join(",") : undefined,
+    min: f.min !== undefined ? String(f.min) : undefined,
+    maks: f.maks !== undefined ? String(f.maks) : undefined,
+    tersedia: f.tersedia ? "1" : undefined,
+    rating: f.rating > 0 ? String(f.rating) : undefined,
+  };
 }

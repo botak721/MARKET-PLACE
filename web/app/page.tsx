@@ -2,34 +2,22 @@ import { Suspense } from "react";
 import Link from "next/link";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import ProductList from "@/components/ProductList";
+import DaftarProduk from "@/components/DaftarProduk";
 import Statistik from "@/components/Statistik";
-import FilterKategori from "@/components/FilterKategori";
 import ProdukPilihan from "@/components/ProdukPilihan";
 import JelajahToko from "@/components/JelajahToko";
 import FotoHero from "@/components/FotoHero";
-import { bacaHalaman, bacaUrutan } from "@/lib/daftar-produk";
+import type { ParamMentah } from "@/lib/daftar-produk";
 
-type Param = { kategori?: string; urut?: string; hal?: string };
-
-async function Daftar({ searchParams }: { searchParams: Promise<Param> }) {
-  const { kategori, urut, hal } = await searchParams;
-  return (
-    <>
-      <FilterKategori aktif={kategori} />
-      <ProductList
-        kategori={kategori}
-        urut={bacaUrutan(urut)}
-        halaman={bacaHalaman(hal)}
-      />
-    </>
-  );
+async function Daftar({ searchParams }: { searchParams: Promise<ParamMentah> }) {
+  const param = await searchParams;
+  return <DaftarProduk dasar="/" param={param} hash="#produk" />;
 }
 
 export default function Home({
   searchParams,
 }: {
-  searchParams: Promise<Param>;
+  searchParams: Promise<ParamMentah>;
 }) {
   return (
     <>

@@ -7,12 +7,14 @@ export default function Paginasi({
   dasar,
   param,
   hash,
+  sempit = false,
 }: {
   halaman: number;
   totalHalaman: number;
   dasar: string;
   param: Record<string, string | undefined>;
   hash?: string;
+  sempit?: boolean;
 }) {
   if (totalHalaman <= 1) return null;
 
@@ -24,14 +26,25 @@ export default function Paginasi({
   return (
     <nav
       aria-label="Halaman"
-      className="-mt-8 flex items-center justify-between gap-3 px-[5vw] pb-16"
+      className={
+        sempit
+          ? "flex items-center justify-between gap-3 pb-10"
+          : "-mt-8 flex items-center justify-between gap-3 px-[5vw] pb-16"
+      }
     >
       {halaman > 1 ? (
-        <Link href={url(halaman - 1)} rel="prev" className={`${tombol} text-hijau`}>
+        <Link
+          href={url(halaman - 1)}
+          rel="prev"
+          className={`${tombol} text-hijau`}
+        >
           Sebelumnya
         </Link>
       ) : (
-        <span aria-disabled="true" className={`${tombol} text-hijau opacity-30`}>
+        <span
+          aria-disabled="true"
+          className={`${tombol} text-hijau opacity-30`}
+        >
           Sebelumnya
         </span>
       )}
@@ -39,11 +52,18 @@ export default function Paginasi({
         Halaman {halaman} dari {totalHalaman}
       </p>
       {halaman < totalHalaman ? (
-        <Link href={url(halaman + 1)} rel="next" className={`${tombol} text-hijau`}>
+        <Link
+          href={url(halaman + 1)}
+          rel="next"
+          className={`${tombol} text-hijau`}
+        >
           Berikutnya
         </Link>
       ) : (
-        <span aria-disabled="true" className={`${tombol} text-hijau opacity-30`}>
+        <span
+          aria-disabled="true"
+          className={`${tombol} text-hijau opacity-30`}
+        >
           Berikutnya
         </span>
       )}
