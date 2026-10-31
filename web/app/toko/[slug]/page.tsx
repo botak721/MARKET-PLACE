@@ -9,6 +9,7 @@ import { ambilRating } from "@/lib/rating";
 import { warnaDari } from "@/lib/warna";
 import GridProduk from "@/components/GridProduk";
 import Footer from "@/components/Footer";
+import SkeletonGrid from "@/components/SkeletonGrid";
 
 async function Etalase({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
@@ -143,7 +144,7 @@ export default function TokoPage({
     <>
       <Header />
       <main>
-        <Suspense fallback={<p className="px-[5vw] py-6">Memuat toko...</p>}>
+        <Suspense fallback={<SkeletonGrid />}>
           <Etalase params={params} />
         </Suspense>
       </main>

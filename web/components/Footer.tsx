@@ -9,8 +9,8 @@ export default function Footer() {
         <div>
           <p className="font-judul text-2xl font-bold">Rizki Online Shop</p>
           <p className="mt-2 max-w-[40ch] text-sm text-krem/85">
-            Barang bagus dari toko-toko kecil. Tiap penjual punya etalasenya
-            sendiri.
+            Marketplace multi-penjual buatan sendiri, tempat siapa saja bisa
+            membuka toko.
           </p>
         </div>
         <nav

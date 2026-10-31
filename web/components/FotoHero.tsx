@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { connection } from "next/server";
 import { prisma } from "@/lib/prisma";
 
@@ -26,9 +27,12 @@ export default async function FotoHero() {
           href={`/produk/${p.id}`}
           className={`block overflow-hidden rounded-3xl ${i % 2 === 1 ? "translate-y-6" : ""}`}
         >
-          <img
+          <Image
             src={p.gambar}
             alt={p.nama}
+            width={400}
+            height={400}
+            sizes="(min-width: 1200px) 280px, 25vw"
             className="aspect-square w-full object-cover"
           />
         </Link>
