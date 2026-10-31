@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { notFound } from "next/navigation";
 import { connection } from "next/server";
 import Header from "@/components/Header";
@@ -44,9 +45,13 @@ async function Detail({ params }: { params: Promise<{ id: string }> }) {
   return (
     <section className="grid gap-8 px-[5vw] pt-10 pb-16 md:grid-cols-2">
       {produk.gambar ? (
-        <img
+        <Image
           src={produk.gambar}
           alt={produk.nama}
+          width={800}
+          height={800}
+          preload
+          sizes="(min-width: 768px) 50vw, 100vw"
           className="aspect-square w-full rounded-3xl object-cover"
         />
       ) : (

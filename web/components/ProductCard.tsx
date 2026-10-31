@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import TambahKeranjang from "@/components/TambahKeranjang";
 import { warnaDari } from "@/lib/warna";
@@ -34,10 +35,12 @@ export default function ProductCard({
   const foto = (
     <div className="relative mb-2.5 sm:mb-3.5">
       {gambar ? (
-        <img
+        <Image
           src={gambar}
           alt={nama}
-          loading="lazy"
+          width={400}
+          height={400}
+          sizes="(min-width: 1024px) 300px, (min-width: 640px) 30vw, 46vw"
           className="aspect-square w-full rounded-2xl object-cover"
         />
       ) : (

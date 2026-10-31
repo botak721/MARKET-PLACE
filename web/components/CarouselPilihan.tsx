@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, ChevronLeft, ChevronRight, Tag } from "lucide-react";
 import { warnaDari } from "@/lib/warna";
@@ -56,12 +57,13 @@ export default function CarouselPilihan({ items }: { items: ItemPilihan[] }) {
                 href={`/produk/${p.id}`}
                 className="group relative block h-[360px] w-[250px] overflow-hidden rounded-3xl bg-kartu transition-transform duration-300 hover:-translate-y-2 motion-reduce:transition-none motion-reduce:hover:translate-y-0 sm:w-[280px]"
               >
-                <div className="h-1/2 overflow-hidden">
-                  <img
+                <div className="relative h-1/2 overflow-hidden">
+                  <Image
                     src={p.gambar}
                     alt=""
-                    loading="lazy"
-                    className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105 motion-reduce:transition-none motion-reduce:group-hover:scale-100"
+                    fill
+                    sizes="280px"
+                    className="object-cover transition-transform duration-500 group-hover:scale-105 motion-reduce:transition-none motion-reduce:group-hover:scale-100"
                   />
                 </div>
                 <div className="flex h-1/2 flex-col justify-between p-4">

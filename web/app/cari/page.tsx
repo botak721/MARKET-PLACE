@@ -5,6 +5,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import DaftarProduk from "@/components/DaftarProduk";
 import { satu, type ParamMentah } from "@/lib/daftar-produk";
+import SkeletonGrid from "@/components/SkeletonGrid";
 
 export const metadata: Metadata = {
   title: "Cari produk",
@@ -43,7 +44,7 @@ export default function CariPage({
     <>
       <Header />
       <main className="mx-auto max-w-[1200px]">
-        <Suspense fallback={<p className="px-[5vw] py-12">Mencari...</p>}>
+        <Suspense fallback={<SkeletonGrid />}>
           <Hasil searchParams={searchParams} />
         </Suspense>
       </main>
