@@ -1,42 +1,53 @@
 "use client";
 
 import Link from "next/link";
+import { Package, ShoppingCart, Store } from "lucide-react";
 import { useSession } from "@/lib/auth-client";
+
+const ikon =
+  "flex h-11 w-11 items-center justify-center rounded-full text-slate-300 transition-colors hover:bg-white/10 hover:text-white md:w-auto md:gap-2 md:px-3";
 
 export default function AuthNav() {
   const { data: session, isPending } = useSession();
 
-  if (isPending) return <div className="h-10 w-32" />;
+  if (isPending) return <div className="h-11 w-24" aria-hidden="true" />;
 
-      if (session?.user) {
+  if (!session?.user) {
     return (
-      <nav className="flex items-center gap-3 whitespace-nowrap">
-        <Link href="/keranjang" className="font-semibold text-hijau">
-          Keranjang
-        </Link>
-        <Link href="/pesanan" className="font-semibold text-hijau">
-          Pesanan
+      <nav aria-label="Akun" className="flex items-center gap-1 sm:gap-2">
+        <Link
+          href="/sign-in"
+          className="inline-flex min-h-11 items-center rounded-full px-3 text-sm font-semibold text-slate-200 transition-colors hover:bg-white/10 hover:text-white"
+        >
+          Masuk
         </Link>
         <Link
-          href="/dashboard"
-          className="rounded-full bg-hijau px-4 py-2 font-semibold text-krem"
+          href="/sign-up"
+          className="inline-flex min-h-11 items-center rounded-full bg-biru px-5 text-sm font-semibold text-white transition-colors hover:bg-biru-tua"
         >
-          Dashboard
+          Daftar
         </Link>
       </nav>
     );
   }
 
   return (
-    <nav className="flex items-center gap-3 whitespace-nowrap">
-      <Link href="/sign-in" className="font-semibold text-hijau">
-        Masuk
+    <nav aria-label="Akun" className="flex items-center gap-0.5 sm:gap-1">
+      <Link href="/keranjang" aria-label="Keranjang" className={ikon}>
+        <ShoppingCart className="h-5 w-5" aria-hidden="true" />
+        <span className="hidden text-sm font-semibold md:inline">Keranjang</span>
+      </Link>
+      <Link href="/pesanan" aria-label="Pesanan" className={ikon}>
+        <Package className="h-5 w-5" aria-hidden="true" />
+        <span className="hidden text-sm font-semibold md:inline">Pesanan</span>
       </Link>
       <Link
-        href="/sign-up"
-        className="rounded-full bg-hijau px-4 py-2 font-semibold text-krem"
+        href="/dashboard"
+        aria-label="Dashboard toko"
+        className={`${ikon} bg-white/10 !text-white`}
       >
-        Daftar
+        <Store className="h-5 w-5" aria-hidden="true" />
+        <span className="hidden text-sm font-semibold md:inline">Dashboard</span>
       </Link>
     </nav>
   );

@@ -1,10 +1,11 @@
+// Enam warna dingin untuk identitas toko. Satu toko selalu mendapat warna yang sama.
 export const PALET = [
-  { bg: "#e3ecdf", teks: "#1f4d3a" },
-  { bg: "#f1e0c5", teks: "#7a5a12" },
-  { bg: "#dce6f2", teks: "#25496b" },
-  { bg: "#f1d9d6", teks: "#8a2f26" },
-  { bg: "#e8dff0", teks: "#5a3d73" },
-  { bg: "#d9cdb8", teks: "#5c4a2e" },
+  { bg: "#e0f2fe", teks: "#075985" },
+  { bg: "#bae6fd", teks: "#0c4a6e" },
+  { bg: "#e0e7ff", teks: "#3730a3" },
+  { bg: "#dbeafe", teks: "#1e40af" },
+  { bg: "#cbd5e1", teks: "#0f172a" },
+  { bg: "#c7d2fe", teks: "#312e81" },
 ];
 
 export function warnaDari(nama: string) {

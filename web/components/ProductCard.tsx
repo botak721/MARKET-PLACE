@@ -1,6 +1,6 @@
-import Image from "next/image";
 import Link from "next/link";
-import TambahKeranjang from "@/components/TambahKeranjang";
+import { Star } from "lucide-react";
+import TombolKeranjang from "@/components/TombolKeranjang";
 import { warnaDari } from "@/lib/warna";
 
 type Props = {
@@ -13,10 +13,11 @@ type Props = {
   rata?: number;
   jumlahUlasan?: number;
   stok?: number;
+  lencana?: string;
 };
 
 const pil =
-  "mt-1.5 inline-block max-w-full self-start truncate rounded-full px-2.5 py-0.5 text-xs sm:mt-2 sm:text-sm";
+  "mt-1 inline-flex max-w-full items-center gap-1.5 rounded-full py-1 pr-2.5 pl-1 text-xs font-semibold";
 
 export default function ProductCard({
   id,
@@ -28,92 +29,121 @@ export default function ProductCard({
   rata,
   jumlahUlasan,
   stok,
+  lencana,
 }: Props) {
   const warna = warnaDari(toko);
-  const huruf = (Array.from(nama.trim())[0] ?? "?").toUpperCase();
+  const hurufToko = (Array.from(toko.trim())[0] ?? "?").toUpperCase();
+  const hurufProduk = (Array.from(nama.trim())[0] ?? "?").toUpperCase();
+  const habis = stok === 0;
+  const menipis = stok !== undefined && stok > 0 && stok <= 5;
 
   const foto = (
-    <div className="relative mb-2.5 sm:mb-3.5">
+    <div className="relative mb-3.5 aspect-square overflow-hidden rounded-xl bg-slate-100">
       {gambar ? (
-        <Image
+        <img
           src={gambar}
           alt={nama}
-          width={400}
-          height={400}
-          sizes="(min-width: 1024px) 300px, (min-width: 640px) 30vw, 46vw"
-          className="aspect-square w-full rounded-2xl object-cover"
+          loading="lazy"
+          className={`h-full w-full object-cover transition-transform duration-300 group-hover:scale-105 motion-reduce:transition-none motion-reduce:group-hover:scale-100 ${habis ? "opacity-60" : ""}`}
         />
       ) : (
         <div
           aria-hidden="true"
-          className="flex aspect-square items-center justify-center rounded-2xl"
+          className="flex h-full w-full items-center justify-center"
           style={{ backgroundColor: warna.bg, color: warna.teks }}
         >
-          <span className="font-judul text-5xl font-bold opacity-80 sm:text-6xl">
-            {huruf}
+          <span className="font-judul text-6xl font-bold opacity-80">
+            {hurufProduk}
           </span>
         </div>
       )}
-      {stok === 0 ? (
-        <span className="absolute inset-0 flex items-center justify-center rounded-2xl bg-tinta/55 text-sm font-semibold text-kartu">
+      {habis ? (
+        <span className="absolute top-2.5 left-2.5 rounded-full border border-red-100 bg-red-50 px-2.5 py-1 text-xs font-bold text-red-600">
           Stok habis
         </span>
-      ) : stok !== undefined && stok <= 5 ? (
-        <span className="absolute top-2 left-2 rounded-full bg-[#f3e6c4] px-2 py-0.5 text-xs font-semibold text-[#7a5a12]">
+      ) : menipis ? (
+        <span className="absolute top-2.5 left-2.5 rounded-full bg-navy px-2.5 py-1 text-xs font-bold text-white">
           Sisa {stok}
+        </span>
+      ) : lencana ? (
+        <span className="absolute top-2.5 left-2.5 rounded-full bg-biru px-2.5 py-1 text-xs font-bold text-white">
+          {lencana}
         </span>
       ) : null}
     </div>
   );
 
+  const isiPil = (
+    <>
+      <span
+        aria-hidden="true"
+        className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-biru text-[11px] font-bold text-white"
+      >
+        {hurufToko}
+      </span>
+      <span className="truncate">{toko}</span>
+    </>
+  );
+  const gayaPil = { backgroundColor: warna.bg, color: warna.teks };
+
   return (
-    <article className="flex flex-col rounded-3xl bg-kartu p-2.5 pb-3.5 transition-transform hover:-translate-y-1.5 sm:p-3.5 sm:pb-5 motion-reduce:transition-none motion-reduce:hover:translate-y-0">
-      {id !== undefined ? <Link href={`/produk/${id}`}>{foto}</Link> : foto}
-      <h2 className="line-clamp-2 min-h-10 text-sm font-semibold sm:min-h-12 sm:text-base">
+    <article className="group flex h-full flex-col justify-between rounded-2xl border border-slate-200 bg-white p-3 shadow-kartu transition-all duration-300 hover:-translate-y-1 hover:shadow-kartu-naik motion-reduce:transition-none motion-reduce:hover:translate-y-0 sm:p-4">
+      <div>
         {id !== undefined ? (
-          <Link href={`/produk/${id}`} className="hover:underline">
-            {nama}
+          <Link href={`/produk/${id}`} className="block">
+            {foto}
           </Link>
         ) : (
-          nama
+          foto
         )}
-      </h2>
-      {slug ? (
-        <Link
-          href={`/toko/${slug}`}
-          className={pil}
-          style={{ backgroundColor: warna.bg, color: warna.teks }}
-        >
-          {toko}
-        </Link>
-      ) : (
-        <p
-          className={pil}
-          style={{ backgroundColor: warna.bg, color: warna.teks }}
-        >
-          {toko}
-        </p>
-      )}
-      <div className="mt-2 flex flex-wrap items-baseline justify-between gap-x-2 sm:mt-2.5">
-        <p className="font-semibold text-hijau">
-          Rp{harga.toLocaleString("id-ID")}
-        </p>
-        {jumlahUlasan ? (
-          <p className="shrink-0 text-xs sm:text-sm">
-            <span className="text-[#d99a1e]">★</span>{" "}
-            {(rata ?? 0).toLocaleString("id-ID", {
-              minimumFractionDigits: 1,
-              maximumFractionDigits: 1,
-            })}{" "}
-            <span className="opacity-70">({jumlahUlasan})</span>
+        {slug ? (
+          <Link href={`/toko/${slug}`} className={pil} style={gayaPil}>
+            {isiPil}
+          </Link>
+        ) : (
+          <p className={pil} style={gayaPil}>
+            {isiPil}
           </p>
-        ) : null}
-      </div>
-      {id !== undefined && (
-        <div className="mt-auto">
-          <TambahKeranjang productId={id} stok={stok} ringkas />
+        )}
+        <h3 className="mt-2 line-clamp-2 min-h-10 text-sm font-bold sm:min-h-12 sm:text-base">
+          {id !== undefined ? (
+            <Link href={`/produk/${id}`} className="hover:underline">
+              {nama}
+            </Link>
+          ) : (
+            nama
+          )}
+        </h3>
+        <div className="mt-1.5 flex min-h-5 items-center gap-1.5 text-xs text-slate-600">
+          {jumlahUlasan ? (
+            <>
+              <Star
+                className="h-4 w-4 fill-biru text-biru"
+                aria-hidden="true"
+              />
+              <span className="font-bold text-tinta">
+                {(rata ?? 0).toLocaleString("id-ID", {
+                  minimumFractionDigits: 1,
+                  maximumFractionDigits: 1,
+                })}
+              </span>
+              <span>({jumlahUlasan} ulasan)</span>
+            </>
+          ) : null}
         </div>
-      )}
+      </div>
+
+      <div className="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 pt-3">
+        <div>
+          <p className="text-xs text-slate-600">Harga</p>
+          <p className="font-judul text-base font-bold tabular-nums sm:text-lg">
+            Rp{harga.toLocaleString("id-ID")}
+          </p>
+        </div>
+        {id !== undefined && (
+          <TombolKeranjang productId={id} nama={nama} stok={stok} />
+        )}
+      </div>
     </article>
   );
 }
