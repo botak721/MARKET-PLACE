@@ -9,9 +9,13 @@ async function idPengguna() {
   return session?.user?.id ?? null;
 }
 
-export async function tambahKeKeranjang(productId: number) {
+export async function tambahKeKeranjang(productId: number, jumlah = 1) {
   const uid = await idPengguna();
   if (!uid) return { error: "Masuk dulu untuk mulai belanja." };
+
+  if (!Number.isInteger(jumlah) || jumlah < 1 || jumlah > 99) {
+    return { error: "Jumlah tidak valid." };
+  }
 
   const produk = await prisma.product.findUnique({
     where: { id: productId },
@@ -21,23 +25,26 @@ export async function tambahKeKeranjang(productId: number) {
   if (produk.store.ownerId === uid) {
     return { error: "Kamu tidak bisa membeli produk tokomu sendiri." };
   }
-
   if (produk.stok <= 0) return { error: "Stok produk ini habis." };
 
   const sudahAda = await prisma.cartItem.findUnique({
     where: { userId_productId: { userId: uid, productId } },
     select: { jumlah: true },
   });
-  if ((sudahAda?.jumlah ?? 0) + 1 > produk.stok) {
+  const sudah = sudahAda?.jumlah ?? 0;
+  if (sudah + jumlah > produk.stok) {
     return {
-      error: `Stok tersisa ${produk.stok}, semuanya sudah ada di keranjangmu.`,
+      error:
+        sudah >= produk.stok
+          ? `Stok tersisa ${produk.stok}, semuanya sudah ada di keranjangmu.`
+          : `Stok tersisa ${produk.stok}, kamu sudah punya ${sudah} di keranjang.`,
     };
   }
 
   await prisma.cartItem.upsert({
     where: { userId_productId: { userId: uid, productId } },
-    create: { userId: uid, productId, jumlah: 1 },
-    update: { jumlah: { increment: 1 } },
+    create: { userId: uid, productId, jumlah },
+    update: { jumlah: { increment: jumlah } },
   });
   return { error: null };
 }
