@@ -1,11 +1,23 @@
 @import "tailwindcss";
 
 @theme {
-  --color-krem: #f4f2ea;
-  --color-tinta: #1f2a24;
-  --color-hijau: #1f4d3a;
+  /* Nama lama (krem, tinta, hijau, kartu, kunyit) dipertahankan sementara supaya
+     halaman yang belum dirombak ikut berwarna biru. Diganti di akhir perombakan. */
+  --color-krem: #f8fafc;
+  --color-tinta: #0b1c30;
+  --color-hijau: #2563eb;
   --color-kartu: #ffffff;
-  --color-kunyit: #e9b22f;
+  --color-kunyit: #2563eb;
+
+  --color-biru: #2563eb;
+  --color-biru-tua: #1d4ed8;
+  --color-navy: #0f172a;
+  --color-navy-gelap: #0b1120;
+  --color-navy-dasar: #090d16;
+
+  --shadow-kartu:
+    0 4px 20px -2px rgb(15 23 42 / 0.05), 0 2px 6px -1px rgb(37 99 235 / 0.04);
+  --shadow-kartu-naik: 0 12px 28px -4px rgb(37 99 235 / 0.12);
 }
 
 @theme inline {
@@ -29,4 +41,14 @@ body {
   html {
     scroll-behavior: smooth;
   }
+}
+
+:where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+  outline: 2px solid var(--color-biru);
+  outline-offset: 2px;
+}
+
+header :focus-visible,
+footer :focus-visible {
+  outline-color: #bfdbfe;
 }

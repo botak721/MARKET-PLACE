@@ -18,11 +18,11 @@ export default function FormFilter({
   hapusHref: string;
 }) {
   const id = (n: string) => `${prefix}-${n}`;
-  const judul = "mb-1 text-sm font-semibold";
+  const judul = "mb-1 text-sm font-bold";
   const pilihan = "flex min-h-11 items-center gap-3 text-sm";
-  const kotak = "h-5 w-5 shrink-0 accent-hijau";
+  const kotak = "h-5 w-5 shrink-0 accent-biru";
   const kolom =
-    "w-full rounded-full border-2 border-hijau bg-transparent px-4 py-2";
+    "h-12 w-full rounded-2xl border-[1.5px] border-slate-300 bg-white px-4 text-sm outline-none focus:border-biru focus:ring-4 focus:ring-biru/15";
 
   return (
     <form action={aksi} method="get" className="space-y-5">
@@ -48,7 +48,7 @@ export default function FormFilter({
                 className={kotak}
               />
               <span>{k.nama}</span>
-              <span className="ml-auto text-xs opacity-70">{n}</span>
+              <span className="ml-auto text-xs text-slate-600">{n}</span>
             </label>
           );
         })}
@@ -90,16 +90,19 @@ export default function FormFilter({
         </div>
       </fieldset>
 
-      <label className={pilihan}>
-        <input
-          type="checkbox"
-          name="tersedia"
-          value="1"
-          defaultChecked={f.tersedia}
-          className={kotak}
-        />
-        Hanya yang tersedia
-      </label>
+      <fieldset>
+        <legend className={judul}>Ketersediaan</legend>
+        <label className={pilihan}>
+          <input
+            type="checkbox"
+            name="tersedia"
+            value="1"
+            defaultChecked={f.tersedia}
+            className={kotak}
+          />
+          Hanya yang tersedia
+        </label>
+      </fieldset>
 
       <fieldset>
         <legend className={judul}>Rating</legend>
@@ -124,13 +127,13 @@ export default function FormFilter({
       <div className="flex gap-2">
         <button
           type="submit"
-          className="min-h-11 flex-1 rounded-full bg-hijau px-5 font-semibold text-krem"
+          className="min-h-11 flex-1 rounded-full bg-navy px-5 font-semibold text-white transition-colors hover:bg-navy-gelap"
         >
-          Terapkan
+          Terapkan filter
         </button>
         <Link
           href={hapusHref}
-          className="inline-flex min-h-11 items-center rounded-full border-2 border-hijau px-5 font-semibold text-hijau"
+          className="inline-flex min-h-11 items-center rounded-full px-3 text-sm font-semibold text-biru hover:underline"
         >
           Atur ulang
         </Link>

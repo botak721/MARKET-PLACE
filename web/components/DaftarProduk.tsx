@@ -117,9 +117,12 @@ export default async function DaftarProduk({
   };
 
   return (
-    <div className="grid gap-6 px-[5vw] pt-6 lg:grid-cols-[15rem_minmax(0,1fr)] lg:gap-10">
-      <aside aria-label="Filter" className="hidden lg:sticky lg:top-24 lg:block lg:self-start">
-        <p className="font-judul mb-3 text-lg font-bold">Filter</p>
+    <div className="grid gap-6 px-4 pt-6 sm:px-6 lg:grid-cols-[16rem_minmax(0,1fr)] lg:gap-8">
+      <aside
+        aria-label="Filter"
+        className="hidden rounded-2xl border border-slate-200 bg-white p-5 shadow-kartu lg:sticky lg:top-24 lg:block lg:self-start"
+      >
+        <p className="font-judul mb-4 text-lg font-semibold">Filter pencarian</p>
         <FormFilter prefix="d" {...formProps} />
       </aside>
 
@@ -129,7 +132,13 @@ export default async function DaftarProduk({
             <PanelFilter jumlahAktif={chips.length}>
               <FormFilter prefix="m" {...formProps} />
             </PanelFilter>
-            <p className="text-sm opacity-70">{total} produk</p>
+            <p className="text-sm text-slate-600">
+              Menampilkan{" "}
+              <span className="font-semibold text-tinta">
+                {total.toLocaleString("id-ID")}
+              </span>{" "}
+              produk
+            </p>
           </div>
           <PilihUrutan
             aktif={urut}
@@ -140,13 +149,16 @@ export default async function DaftarProduk({
         </div>
 
         {chips.length > 0 && (
-          <ul aria-label="Filter aktif" className="mt-4 flex flex-wrap items-center gap-2">
+          <ul
+            aria-label="Filter aktif"
+            className="mt-4 flex flex-wrap items-center gap-2"
+          >
             {chips.map((c) => (
               <li key={c.label}>
                 <Link
                   href={c.href}
                   aria-label={`Hapus filter ${c.label}`}
-                  className="inline-flex min-h-11 items-center gap-2 rounded-full bg-[#e3ecdf] pr-3 pl-4 text-sm text-hijau"
+                  className="inline-flex min-h-11 items-center gap-2 rounded-full bg-slate-100 pr-3 pl-4 text-sm text-slate-700 transition-colors hover:bg-slate-200"
                 >
                   {c.label}
                   <X className="h-4 w-4" aria-hidden="true" />
@@ -156,7 +168,7 @@ export default async function DaftarProduk({
             <li>
               <Link
                 href={hapusSemua}
-                className="inline-flex min-h-11 items-center px-2 text-sm font-semibold text-hijau underline"
+                className="inline-flex min-h-11 items-center px-2 text-sm font-semibold text-biru hover:underline"
               >
                 Hapus semua
               </Link>
@@ -175,7 +187,7 @@ export default async function DaftarProduk({
               {chips.length > 0 && (
                 <Link
                   href={hapusSemua}
-                  className="mt-4 inline-flex min-h-11 items-center rounded-full border-2 border-hijau px-5 font-semibold text-hijau"
+                  className="mt-4 inline-flex min-h-11 items-center rounded-full border-[1.5px] border-navy px-5 font-semibold text-navy"
                 >
                   Hapus semua filter
                 </Link>

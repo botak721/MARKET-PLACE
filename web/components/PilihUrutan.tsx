@@ -29,12 +29,15 @@ export default function PilihUrutan({
           router.push(
             buatUrl(
               dasar,
-              { ...param, urut: e.target.value === "terbaru" ? undefined : e.target.value },
+              {
+                ...param,
+                urut: e.target.value === "terbaru" ? undefined : e.target.value,
+              },
               hash,
             ),
           )
         }
-        className="min-h-11 rounded-full border-2 border-hijau bg-transparent px-4 text-sm"
+        className="min-h-11 rounded-full border border-slate-300 bg-white px-4 text-sm"
       >
         {URUTAN.map((u) => (
           <option key={u.kode} value={u.kode}>
