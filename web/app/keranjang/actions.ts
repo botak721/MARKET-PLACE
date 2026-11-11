@@ -56,7 +56,9 @@ export async function ambilKeranjang() {
   const item = await prisma.cartItem.findMany({
     where: { userId: uid },
     include: {
-      product: { include: { store: { select: { id: true, nama: true } } } },
+      product: {
+        include: { store: { select: { id: true, nama: true, slug: true } } },
+      },
     },
     orderBy: { id: "asc" },
   });
@@ -67,8 +69,10 @@ export async function ambilKeranjang() {
     nama: i.product.nama,
     harga: i.product.harga,
     stok: i.product.stok,
+    gambar: i.product.gambar,
     tokoId: i.product.store.id,
     toko: i.product.store.nama,
+    tokoSlug: i.product.store.slug,
   }));
 }
 
