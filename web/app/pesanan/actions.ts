@@ -101,16 +101,33 @@ export async function ambilPesananSaya() {
   const pesanan = await prisma.order.findMany({
     where: { buyerId: uid },
     include: {
-      store: { select: { nama: true } },
+      store: { select: { nama: true, slug: true } },
       payment: { select: { total: true } },
       items: { include: { review: { select: { id: true } } } },
     },
     orderBy: { id: "desc" },
   });
 
+  const idProduk = [
+    ...new Set(
+      pesanan.flatMap((o) =>
+        o.items.flatMap((i) => (i.productId === null ? [] : [i.productId])),
+      ),
+    ),
+  ];
+  const foto =
+    idProduk.length > 0
+      ? await prisma.product.findMany({
+          where: { id: { in: idProduk } },
+          select: { id: true, gambar: true },
+        })
+      : [];
+  const petaFoto = new Map(foto.map((p) => [p.id, p.gambar]));
+
   return pesanan.map((o) => ({
     id: o.id,
     toko: o.store.nama,
+    tokoSlug: o.store.slug,
     status: o.status,
     paymentId: o.paymentId,
     totalBayar: o.payment?.total ?? o.total,
@@ -124,6 +141,8 @@ export async function ambilPesananSaya() {
       jumlah: i.jumlah,
       productId: i.productId,
       sudahDiulas: i.review !== null,
+      gambar:
+        i.productId !== null ? (petaFoto.get(i.productId) ?? null) : null,
     })),
   }));
 }

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Minus, Plus, ShoppingBag } from "lucide-react";
 import { tambahKeKeranjang } from "@/app/keranjang/actions";
+import { kabarKeranjang } from "@/lib/keranjang-event";
 
 const langkah =
   "flex h-11 w-11 items-center justify-center rounded-full text-tinta transition-colors hover:bg-slate-100 disabled:opacity-30 disabled:hover:bg-transparent";
@@ -38,6 +39,7 @@ export default function PembelianProduk({
       return;
     }
     setBerhasil(true);
+    kabarKeranjang();
   }
 
   if (stok <= 0) {

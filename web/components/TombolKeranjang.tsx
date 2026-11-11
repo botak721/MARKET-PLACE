@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Check, ShoppingBag } from "lucide-react";
 import { tambahKeKeranjang } from "@/app/keranjang/actions";
+import { kabarKeranjang } from "@/lib/keranjang-event";
 
 export default function TombolKeranjang({
   productId,
@@ -39,6 +40,7 @@ export default function TombolKeranjang({
       return;
     }
     setBerhasil(true);
+    kabarKeranjang();
     timer.current = setTimeout(() => setBerhasil(false), 2000);
   }
 
