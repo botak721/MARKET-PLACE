@@ -3,11 +3,10 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
+import { KartuAuth, KolomIsian, KolomSandi } from "@/components/FormAuth";
 import { signIn } from "@/lib/auth-client";
-
-const kolom =
-  "w-full rounded-full border-2 border-hijau bg-transparent px-5 py-3";
-const label = "mb-1 block text-sm font-semibold";
 
 export default function SignInPage() {
   const router = useRouter();
@@ -38,57 +37,56 @@ export default function SignInPage() {
   }
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-md flex-col justify-center gap-4 px-6">
-      <h1 className="font-judul text-3xl font-bold text-hijau">Masuk</h1>
-      {error && (
-        <p role="alert" className="text-red-600">
-          {error}
-        </p>
-      )}
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label htmlFor="email" className={label}>
-            Email
-          </label>
-          <input
-            id="email"
-            name="email"
-            type="email"
-            autoComplete="email"
-            required
-            className={kolom}
-          />
-        </div>
-        <div>
-          <label htmlFor="password" className={label}>
-            Password
-          </label>
-          <input
-            id="password"
-            name="password"
-            type="password"
-            autoComplete="current-password"
-            required
-            className={kolom}
-          />
-        </div>
-        <button
-          type="submit"
-          disabled={proses}
-          className="min-h-11 w-full rounded-full bg-hijau px-5 py-3 font-semibold text-krem disabled:opacity-50"
+    <>
+      <Header />
+      <main className="min-h-[60vh] px-4 py-12 sm:px-6">
+        <KartuAuth
+          aktif="masuk"
+          judul="Masuk ke akunmu"
+          subjudul="Lihat pesanan, kelola tokomu, dan lanjutkan belanja."
         >
-          {proses ? "Masuk..." : "Masuk"}
-        </button>
-      </form>
-      <p className="text-sm">
-        Belum punya akun?{" "}
-        <Link
-          href="/sign-up"
-          className="inline-block py-2 font-semibold text-hijau underline"
-        >
-          Daftar
-        </Link>
-      </p>
-    </main>
+          {error && (
+            <p
+              role="alert"
+              className="mt-5 rounded-2xl border border-red-100 bg-red-50 px-4 py-3 text-sm font-semibold text-red-600"
+            >
+              {error}
+            </p>
+          )}
+          <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+            <KolomIsian
+              id="email"
+              name="email"
+              label="Email"
+              type="email"
+              ikon="email"
+              autoComplete="email"
+            />
+            <KolomSandi
+              id="password"
+              label="Password"
+              autoComplete="current-password"
+            />
+            <button
+              type="submit"
+              disabled={proses}
+              className="h-12 w-full rounded-full bg-biru font-semibold text-white shadow-lg shadow-biru/25 transition-colors hover:bg-biru-tua disabled:opacity-60"
+            >
+              {proses ? "Masuk..." : "Masuk"}
+            </button>
+          </form>
+          <p className="mt-6 text-center text-sm text-slate-600">
+            Belum punya akun?{" "}
+            <Link
+              href="/sign-up"
+              className="inline-flex min-h-11 items-center font-semibold text-biru underline"
+            >
+              Daftar sekarang
+            </Link>
+          </p>
+        </KartuAuth>
+      </main>
+      <Footer />
+    </>
   );
 }
