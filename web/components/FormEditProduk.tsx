@@ -16,8 +16,10 @@ type Produk = {
 };
 
 const kolom =
-  "w-full rounded-full border-2 border-hijau bg-transparent px-5 py-3";
-const label = "mb-1 block text-sm font-semibold";
+  "h-12 w-full rounded-2xl border-[1.5px] border-slate-300 bg-white px-4 text-sm outline-none focus:border-biru focus:ring-4 focus:ring-biru/15";
+const area =
+  "w-full rounded-2xl border-[1.5px] border-slate-300 bg-white px-4 py-3 text-sm outline-none focus:border-biru focus:ring-4 focus:ring-biru/15";
+const label = "mb-1 block text-sm font-bold";
 
 export default function FormEditProduk({
   produk,
@@ -61,11 +63,11 @@ export default function FormEditProduk({
   return (
     <form
       onSubmit={handleSubmit}
-      className="space-y-3 rounded-2xl bg-kartu p-4"
+      className="space-y-4 rounded-2xl border border-blue-100 bg-blue-50 p-5"
     >
-      <p className="font-semibold">Edit produk</p>
+      <p className="font-judul text-lg font-bold">Edit produk</p>
       {error && (
-        <p role="alert" className="text-red-600">
+        <p role="alert" className="text-sm font-semibold text-red-600">
           {error}
         </p>
       )}
@@ -73,15 +75,9 @@ export default function FormEditProduk({
         <label htmlFor={id("nama")} className={label}>
           Nama produk
         </label>
-        <input
-          id={id("nama")}
-          name="nama"
-          defaultValue={produk.nama}
-          required
-          className={kolom}
-        />
+        <input id={id("nama")} name="nama" defaultValue={produk.nama} required className={kolom} />
       </div>
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid gap-4 sm:grid-cols-2">
         <div>
           <label htmlFor={id("harga")} className={label}>
             Harga (rupiah)
@@ -123,7 +119,7 @@ export default function FormEditProduk({
           defaultValue={produk.deskripsi ?? ""}
           maxLength={1000}
           rows={4}
-          className="w-full rounded-3xl border-2 border-hijau bg-transparent px-5 py-3"
+          className={area}
         />
       </div>
       <div>
@@ -153,7 +149,7 @@ export default function FormEditProduk({
             <img
               src={produk.gambar}
               alt={`Foto saat ini: ${produk.nama}`}
-              className="h-12 w-12 rounded-xl object-cover"
+              className="h-14 w-14 rounded-xl object-cover"
             />
           )}
           <input
@@ -169,14 +165,14 @@ export default function FormEditProduk({
         <button
           type="submit"
           disabled={proses}
-          className="min-h-11 flex-1 rounded-full bg-hijau px-5 py-3 font-semibold text-krem disabled:opacity-50"
+          className="min-h-11 flex-1 rounded-full bg-biru px-5 font-semibold text-white transition-colors hover:bg-biru-tua disabled:opacity-60"
         >
           {proses ? "Menyimpan..." : "Simpan"}
         </button>
         <button
           type="button"
           onClick={onBatal}
-          className="min-h-11 rounded-full border-2 border-hijau px-5 py-3 font-semibold text-hijau"
+          className="min-h-11 rounded-full border border-slate-300 bg-white px-5 font-semibold"
         >
           Batal
         </button>
