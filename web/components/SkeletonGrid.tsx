@@ -18,7 +18,7 @@ export default function SkeletonGrid({
         {Array.from({ length: jumlah }, (_, i) => (
           <div
             key={i}
-            className="animate-pulse rounded-3xl bg-kartu p-2.5 pb-3.5 motion-reduce:animate-none sm:p-3.5 sm:pb-5"
+            className="animate-pulse rounded-3xl bg-white p-2.5 pb-3.5 motion-reduce:animate-none sm:p-3.5 sm:pb-5"
           >
             <div className="aspect-square rounded-2xl bg-[#e8e4d8]" />
             <div className="mt-3 h-4 w-3/4 rounded-full bg-[#e8e4d8]" />
