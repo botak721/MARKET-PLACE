@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import GrafikPenjualan from "@/components/GrafikPenjualan";
 import { ambilRingkasan } from "@/app/dashboard/actions";
 import { warnaDari } from "@/lib/warna";
 
@@ -86,6 +87,8 @@ export default function RingkasanPenjualan({
           <p className="mt-1 text-xs text-slate-600">Termasuk yang stoknya habis</p>
         </div>
       </dl>
+
+      <GrafikPenjualan data={data.harian} />
 
       {data.terlaris.length > 0 && (
         <div>

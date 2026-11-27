@@ -201,11 +201,31 @@ export async function ubahStok(id: number, stok: number) {
   return { error: null };
 }
 
+function kunciTanggalWIB(d: Date) {
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Asia/Jakarta",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(d);
+}
+
+function labelTanggalWIB(d: Date) {
+  return new Intl.DateTimeFormat("id-ID", {
+    timeZone: "Asia/Jakarta",
+    day: "numeric",
+    month: "short",
+  }).format(d);
+}
+
 export async function ambilRingkasan() {
   const toko = await ambilTokoSaya();
   if (!toko) return null;
 
-  const [perStatus, terlaris] = await Promise.all([
+  const sekarang = new Date();
+  const awal30Hari = new Date(sekarang.getTime() - 30 * 24 * 60 * 60 * 1000);
+
+  const [perStatus, terlaris, pesananHarian] = await Promise.all([
     prisma.order.groupBy({
       by: ["status"],
       where: {
@@ -228,7 +248,37 @@ export async function ambilRingkasan() {
       orderBy: { _sum: { jumlah: "desc" } },
       take: 3,
     }),
+    prisma.order.findMany({
+      where: {
+        storeId: toko.id,
+        createdAt: { gte: awal30Hari },
+        status: { notIn: ["MENUNGGU_BAYAR", "DIBATALKAN"] },
+        OR: [{ paymentId: null }, { payment: { status: "PAID" } }],
+      },
+      select: { total: true, createdAt: true },
+    }),
   ]);
+
+  const petaHarian = new Map<string, { total: number; pesanan: number }>();
+  for (const p of pesananHarian) {
+    const kunci = kunciTanggalWIB(p.createdAt);
+    const saatIni = petaHarian.get(kunci) ?? { total: 0, pesanan: 0 };
+    saatIni.total += p.total;
+    saatIni.pesanan += 1;
+    petaHarian.set(kunci, saatIni);
+  }
+
+  const harian = Array.from({ length: 30 }, (_, idx) => {
+    const d = new Date(sekarang.getTime() - (29 - idx) * 24 * 60 * 60 * 1000);
+    const kunci = kunciTanggalWIB(d);
+    const isi = petaHarian.get(kunci) ?? { total: 0, pesanan: 0 };
+    return {
+      tanggal: kunci,
+      label: labelTanggalWIB(d),
+      total: isi.total,
+      pesanan: isi.pesanan,
+    };
+  });
 
   const ambil = (s: string) => perStatus.find((x) => x.status === s);
 
@@ -243,5 +293,6 @@ export async function ambilRingkasan() {
       nama: t.nama,
       terjual: t._sum.jumlah ?? 0,
     })),
+    harian,
   };
 }
