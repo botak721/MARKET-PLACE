@@ -6,6 +6,8 @@ import { Package, ShoppingCart, Store } from "lucide-react";
 import { useSession } from "@/lib/auth-client";
 import { ambilKeranjang } from "@/app/keranjang/actions";
 import { EVENT_KERANJANG } from "@/lib/keranjang-event";
+import { ambilPesananSaya } from "@/app/pesanan/actions";
+import { EVENT_PESANAN } from "@/lib/pesanan-event";
 
 const ikon =
   "relative flex h-11 w-11 items-center justify-center rounded-full text-slate-300 transition-colors hover:bg-white/10 hover:text-white md:w-auto md:gap-2 md:px-3";
@@ -13,13 +15,13 @@ const ikon =
 export default function AuthNav() {
   const { data: session, isPending } = useSession();
   const [jumlah, setJumlah] = useState(0);
+  const [jumlahPerluDikonfirmasi, setJumlahPerluDikonfirmasi] = useState(0);
   const userId = session?.user?.id;
+  const jumlahTampil = userId ? jumlah : 0;
+  const perluKonfirmasiTampil = userId ? jumlahPerluDikonfirmasi : 0;
 
   useEffect(() => {
-    if (!userId) {
-      setJumlah(0);
-      return;
-    }
+    if (!userId) return;
     let batal = false;
     const muat = () =>
       ambilKeranjang().then((item) => {
@@ -30,6 +32,24 @@ export default function AuthNav() {
     return () => {
       batal = true;
       window.removeEventListener(EVENT_KERANJANG, muat);
+    };
+  }, [userId]);
+
+  useEffect(() => {
+    if (!userId) return;
+    let batal = false;
+    const muat = () =>
+      ambilPesananSaya().then((pesanan) => {
+        if (!batal)
+          setJumlahPerluDikonfirmasi(
+            pesanan.filter((p) => p.status === "DIKIRIM").length,
+          );
+      });
+    muat();
+    window.addEventListener(EVENT_PESANAN, muat);
+    return () => {
+      batal = true;
+      window.removeEventListener(EVENT_PESANAN, muat);
     };
   }, [userId]);
 
@@ -58,23 +78,39 @@ export default function AuthNav() {
     <nav aria-label="Akun" className="flex items-center gap-0.5 sm:gap-1">
       <Link
         href="/keranjang"
-        aria-label={jumlah > 0 ? `Keranjang, ${jumlah} barang` : "Keranjang"}
+        aria-label={jumlahTampil > 0 ? `Keranjang, ${jumlahTampil} barang` : "Keranjang"}
         className={ikon}
       >
         <ShoppingCart className="h-5 w-5" aria-hidden="true" />
         <span className="hidden text-sm font-semibold md:inline">Keranjang</span>
-        {jumlah > 0 && (
+        {jumlahTampil > 0 && (
           <span
             aria-hidden="true"
             className="absolute top-0 right-0 flex h-5 min-w-5 items-center justify-center rounded-full bg-biru px-1 text-[11px] font-bold text-white md:top-0.5 md:right-0.5"
           >
-            {jumlah > 99 ? "99+" : jumlah}
+            {jumlahTampil > 99 ? "99+" : jumlahTampil}
           </span>
         )}
       </Link>
-      <Link href="/pesanan" aria-label="Pesanan" className={ikon}>
+      <Link
+        href="/pesanan"
+        aria-label={
+          perluKonfirmasiTampil > 0
+            ? `Pesanan, ${perluKonfirmasiTampil} perlu dikonfirmasi`
+            : "Pesanan"
+        }
+        className={ikon}
+      >
         <Package className="h-5 w-5" aria-hidden="true" />
         <span className="hidden text-sm font-semibold md:inline">Pesanan</span>
+        {perluKonfirmasiTampil > 0 && (
+          <span
+            aria-hidden="true"
+            className="absolute top-0 right-0 flex h-5 min-w-5 items-center justify-center rounded-full bg-red-500 px-1 text-[11px] font-bold text-white md:top-0.5 md:right-0.5"
+          >
+            {perluKonfirmasiTampil > 9 ? "9+" : perluKonfirmasiTampil}
+          </span>
+        )}
       </Link>
       <Link
         href="/dashboard"

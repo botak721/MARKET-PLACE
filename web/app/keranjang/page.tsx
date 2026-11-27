@@ -3,12 +3,14 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { Info, Minus, Plus, ShoppingBag, Trash2 } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { useSession } from "@/lib/auth-client";
 import { warnaDari } from "@/lib/warna";
 import { kabarKeranjang } from "@/lib/keranjang-event";
+import { tampilkanToast } from "@/lib/toast-event";
 import { ambilKeranjang, ubahJumlah, hapusDariKeranjang } from "./actions";
 
 type Item = Awaited<ReturnType<typeof ambilKeranjang>>[number];
@@ -44,8 +46,10 @@ export default function KeranjangPage() {
   }
 
   async function hapus(productId: number) {
+    const nama = item?.find((i) => i.productId === productId)?.nama ?? "Barang";
     await hapusDariKeranjang(productId);
     await segarkan();
+    tampilkanToast(`${nama} dihapus dari keranjang.`, "info");
   }
 
   async function rapikan() {
@@ -190,10 +194,11 @@ export default function KeranjangPage() {
                                   className="block h-20 w-20 shrink-0 overflow-hidden rounded-xl bg-slate-100"
                                 >
                                   {b.gambar ? (
-                                    <img
+                                    <Image
                                       src={b.gambar}
                                       alt={b.nama}
-                                      loading="lazy"
+                                      width={80}
+                                      height={80}
                                       className={`h-full w-full object-cover ${habis ? "opacity-60" : ""}`}
                                     />
                                   ) : (

@@ -7,9 +7,12 @@ import Script from "next/script";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import FormUlasan from "@/components/FormUlasan";
+import StepperPesanan from "@/components/StepperPesanan";
 import { useSession } from "@/lib/auth-client";
 import { infoStatus } from "@/lib/status";
 import { warnaDari } from "@/lib/warna";
+import { kabarPesanan } from "@/lib/pesanan-event";
+import { tampilkanToast } from "@/lib/toast-event";
 import { ambilPesananSaya, terimaPesanan } from "./actions";
 import {
   mulaiPembayaran,
@@ -76,11 +79,14 @@ export default function PesananPage() {
   async function muatUlang() {
     await sinkronkanPembayaran();
     setPesanan(await ambilPesananSaya());
+    kabarPesanan();
   }
 
   async function terima(id: number) {
     await terimaPesanan(id);
     setPesanan(await ambilPesananSaya());
+    kabarPesanan();
+    tampilkanToast("Pesanan dikonfirmasi selesai. Terima kasih!", "success");
   }
 
   async function bayar(paymentId: number | null) {
@@ -262,6 +268,8 @@ export default function PesananPage() {
                     </span>
                   </div>
                 </div>
+
+                <StepperPesanan status={o.status} />
 
                 <ul className="divide-y divide-slate-100">
                   {o.items.map((i) => (

@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Bricolage_Grotesque, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
+import { ToastProvider } from "@/components/Toast";
+import BottomNav from "@/components/BottomNav";
 
 const bricolage = Bricolage_Grotesque({
   subsets: ["latin"],
@@ -27,7 +29,12 @@ export default function RootLayout({
 }) {
   return (
     <html lang="id" className={`${bricolage.variable} ${jakarta.variable}`}>
-      <body className="font-sans antialiased">{children}</body>
+      <body className="font-sans antialiased pb-16 md:pb-0">
+        <ToastProvider>
+          {children}
+        </ToastProvider>
+        <BottomNav />
+      </body>
     </html>
   );
 }

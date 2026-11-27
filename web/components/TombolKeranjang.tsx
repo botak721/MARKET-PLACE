@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Check, ShoppingBag } from "lucide-react";
 import { tambahKeKeranjang } from "@/app/keranjang/actions";
 import { kabarKeranjang } from "@/lib/keranjang-event";
+import { tampilkanToast } from "@/lib/toast-event";
 
 export default function TombolKeranjang({
   productId,
@@ -36,11 +37,15 @@ export default function TombolKeranjang({
 
     if (hasil.error) {
       if (hasil.error.startsWith("Masuk dulu")) router.push("/sign-in");
-      else setPesan(hasil.error);
+      else {
+        setPesan(hasil.error);
+        tampilkanToast(hasil.error, "error");
+      }
       return;
     }
     setBerhasil(true);
     kabarKeranjang();
+    tampilkanToast(`${nama} berhasil ditambahkan ke keranjang!`, "success");
     timer.current = setTimeout(() => setBerhasil(false), 2000);
   }
 
