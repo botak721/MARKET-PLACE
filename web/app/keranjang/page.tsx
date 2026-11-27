@@ -7,6 +7,7 @@ import Image from "next/image";
 import { Info, Minus, Plus, ShoppingBag, Trash2 } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import { SkeletonKeranjang } from "@/components/SkeletonHalaman";
 import { useSession } from "@/lib/auth-client";
 import { warnaDari } from "@/lib/warna";
 import { kabarKeranjang } from "@/lib/keranjang-event";
@@ -67,7 +68,8 @@ export default function KeranjangPage() {
     return (
       <>
         <Header />
-        <p className="px-4 py-12 text-center sm:px-6">Memuat keranjang...</p>
+        <SkeletonKeranjang />
+        <Footer />
       </>
     );
   }

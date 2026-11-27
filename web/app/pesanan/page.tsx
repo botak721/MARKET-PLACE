@@ -8,6 +8,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import FormUlasan from "@/components/FormUlasan";
 import StepperPesanan from "@/components/StepperPesanan";
+import { SkeletonPesanan } from "@/components/SkeletonHalaman";
 import { useSession } from "@/lib/auth-client";
 import { infoStatus } from "@/lib/status";
 import { warnaDari } from "@/lib/warna";
@@ -127,7 +128,8 @@ export default function PesananPage() {
     return (
       <>
         <Header />
-        <p className="px-4 py-12 text-center sm:px-6">Memuat pesanan...</p>
+        <SkeletonPesanan />
+        <Footer />
       </>
     );
   }

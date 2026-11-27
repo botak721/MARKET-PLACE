@@ -9,6 +9,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import FormEditProduk from "@/components/FormEditProduk";
 import RingkasanPenjualan from "@/components/RingkasanPenjualan";
+import { SkeletonDashboard } from "@/components/SkeletonHalaman";
 import { useSession, signOut } from "@/lib/auth-client";
 import { KATEGORI, namaKategori } from "@/lib/kategori";
 import { warnaDari } from "@/lib/warna";
@@ -139,19 +140,12 @@ export default function DashboardPage() {
     setProduk(await ambilProdukSaya());
   }
 
-  if (isPending) {
+  if (isPending || !session?.user) {
     return (
       <>
         <Header />
-        <p className="px-4 py-12 text-center sm:px-6">Memuat...</p>
-      </>
-    );
-  }
-  if (!session?.user) {
-    return (
-      <>
-        <Header />
-        <p className="px-4 py-12 text-center sm:px-6">Mengalihkan...</p>
+        <SkeletonDashboard />
+        <Footer />
       </>
     );
   }
